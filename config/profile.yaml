@@ -1,0 +1,64 @@
+company:
+  legal_name: "Jatinder Mahajan"
+  brand_name: "JR Consulting Co."
+  constitution: "Proprietorship"
+  gem_seller_id: ""
+  gstin: "03FOKPM0985K1ZI"
+  pan: "FOKPM0985K"
+  msme_udyam: "UDYAM-PB-16-0016845"
+  msme_type: "Micro"
+  msme_activity: "Services"
+  nic_codes: ["62", "6209", "62099"]
+  date_of_incorporation: "2024-08-02"
+  pan_india: true
+  home_city: Pathankot
+  home_state: Punjab
+  address: "221, JR Consulting Co., Arya samaj gali, Sujanpur, Pathankot, Punjab 145023"
+  states: [Punjab]
+  nearby_cities: [Pathankot, Gurdaspur, Kangra, Amritsar, Hoshiarpur, Jammu, Jalandhar, Mohali, Chandigarh]
+  max_bid_value_inr: 5000000
+  min_margin_pct: 18
+  contact_email: "jatinder1901243@gmail.com"
+  contact_phone: "9781948706"
+
+mission: >
+  New Micro MSME (JR Consulting Co., Pathankot): bid on TRAINING SERVICES in Computer Science / AI /
+  digital literacy for government buyers. Prefer no EMD or MSE EMD exemption. Experience ≤2 years,
+  turnover ≤₹40 lakh last year. Not custom software product bids unless bundled with training.
+
+capabilities:
+  - Computer science / computer basics training for gov staff and students
+  - AI literacy workshops for non-technical government officers
+  - Prompt engineering and safe GenAI use in public sector
+  - Digital literacy / computer basics for departments
+  - Faculty / teacher AI-assisted teaching workshops
+  - Capacity building for ministries, PSUs, municipalities, education boards
+  - Soft skills + digital workplace productivity with AI tools
+  - Professional / vocational training in IT and AI domains
+
+eligibility_defaults:
+  years_experience: 2
+  avg_turnover_inr: 4000000
+  team_size: 5
+  certifications: []
+
+bid_policy:
+  auto_submit: false
+  require_human_approval: true
+  prefer_no_emd: true
+  max_experience_years_required: 2
+  max_turnover_required_inr: 4000000
+  min_days_to_deadline: 7
+  skip_product_only_hardware: true
+  target_non_tech_departments: true
+  preferred_keywords_boost:
+    - AI training
+    - artificial intelligence
+    - capacity building
+    - digital literacy
+    - GenAI
+    - prompt engineering
+    - teacher training
+    - faculty development
+    - skill development
+    - e-learning

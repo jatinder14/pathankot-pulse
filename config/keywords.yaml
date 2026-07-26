@@ -1,0 +1,126 @@
+# AI training for NON-TECH gov departments — GeM full-text queries
+gem_queries:
+  - AI training
+  - artificial intelligence training
+  - capacity building
+  - digital literacy
+  - GenAI
+  - prompt engineering
+  - teacher training
+  - faculty training
+  - computer training
+  - skill development
+  - e learning
+  - digital training
+  - workshop training
+  - Professional Training Services
+  - Vocational Training
+  - soft skills training
+
+include_any:
+  - training
+  - capacity building
+  - digital literacy
+  - e-learning
+  - elearning
+  - faculty
+  - teacher training
+  - artificial intelligence
+  - AI training
+  - GenAI
+  - prompt
+  - skill development
+  - computer training
+  - workshop
+  - literacy
+  - awareness programme
+  - awareness program
+  - sensitization
+  - capacity development
+
+# Prefer non-tech buyer signals when scoring (soft filter in scout)
+non_tech_buyer_signals:
+  - education
+  - health
+  - rural
+  - agriculture
+  - municipal
+  - urban
+  - women
+  - social
+  - skill
+  - labour
+  - labor
+  - tourism
+  - culture
+  - finance
+  - revenue
+  - police
+  - home affairs
+  - personnel
+  - administrative
+  - public administration
+
+exclude_any:
+  - furniture
+  - stationery
+  - medical equipment
+  - civil works
+  - construction
+  - vehicle
+  - ammunition
+  - drug
+  - medicine
+  - fertilizer
+  - photocopier
+  - diesel power generator
+  - warehousing
+  - milling machine
+  - cctv
+  - desktop computer
+  - workshop tool
+  - galley equipment
+  - Trend Micro
+  - Intrusion Prevention
+  - dry-dock
+  - electrical panel
+  - Jihad
+  - Kashmir The
+  - Frozen Turbulence
+  - laptop
+  - workstation
+  - solid state drive
+  - RFID
+  - hardware
+  - perpetual licence
+  - painting service
+  - climbing wall
+  - synthetic turf
+  - lockers
+
+cppp_queries:
+  - artificial intelligence training capacity building
+  - digital literacy government training
+  - GenAI workshop officers
+  - AI awareness programme ministry
+  - faculty development AI
+
+portal_watchlist:
+  - name: NeGD
+    url: https://www.negd.gov.in/
+    notes: Digital India / capacity building RFEs
+  - name: MeitY
+    url: https://www.meity.gov.in/
+    notes: AI / digital skilling notices
+  - name: NSDC
+    url: https://nsdcindia.org/
+    notes: Skill development partner opportunities
+  - name: DIKSHA / NCERT CIET
+    url: https://ciet.ncert.gov.in/
+    notes: Teacher digital capacity
+  - name: Punjab eProcurement
+    url: https://eproc.punjab.gov.in/
+    notes: State tenders near Pathankot
+  - name: CPPP
+    url: https://eprocure.gov.in/eprocure/app
+    notes: Central public procurement

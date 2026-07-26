@@ -1,0 +1,149 @@
+{
+  "updated_at": "2026-07-26T10:06:22.892489+00:00",
+  "company": "JR Consulting Co.",
+  "region": {
+    "id": "pathankot",
+    "label": "Pathankot, Punjab",
+    "pincode": "145023",
+    "state": "Punjab",
+    "city": "Pathankot",
+    "nearby": [
+      "Sujanpur",
+      "Gurdaspur",
+      "Kangra",
+      "Nurpur",
+      "Jammu"
+    ],
+    "radius_km": 40,
+    "region_mode": "fixed_default"
+  },
+  "rules": {
+    "prefer_no_emd": true,
+    "max_experience_years": 2,
+    "max_turnover_inr": 4000000,
+    "min_days_to_deadline": 7,
+    "focus": "CS / AI / digital literacy training for non-tech gov depts"
+  },
+  "apply": [
+    {
+      "id": "GEM/2026/B/7831774",
+      "portal": "gem",
+      "verdict": "SKIP",
+      "score": 45,
+      "title": "Manpower Outsourcing Services - Fixed Remuneration - FACULTY; FACULTY; Graduate,Manpower Outsourcing Services - Fixed Remuneration - OFFICE ASSISTANT; OFFICE ASSISTANT; Graduate,Manpower Outsourcing Services - Fixed Remuneration - ATTENDER; ATTENDER; High School,Manpower Outsourcing Services - Fixed Remuneration - WATCHMAN/GARDENER; WATCHMAN/GARDENER; 7th STANDARD PASS",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9657857",
+      "bid_number": "GEM/2026/B/7831774",
+      "buyer": "Ministry of Finance / Department of Financial Services",
+      "location": "Punjab, Tamil Nadu",
+      "ends_at": "2026-08-05T15:00:00",
+      "why": [
+        "No EMD",
+        "Needs 5.0y exp (you: \u22642)",
+        "Training-ish title"
+      ],
+      "emd_ok": true,
+      "proximity": 35
+    },
+    {
+      "id": "GEM/2026/B/7796769",
+      "portal": "gem",
+      "verdict": "SKIP",
+      "score": 15,
+      "title": "Group Term Insurance Service - Permanent Employees, Faculty, Office Staff; Natural death, Accidental death, Suicide, Animal bite, Pre-Existing Illnesses",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9617776",
+      "bid_number": "GEM/2026/B/7796769",
+      "buyer": "Ministry of Education / Department of Higher Education",
+      "location": "Uttarakhand",
+      "ends_at": "2026-08-13T10:00:00",
+      "why": [
+        "No EMD",
+        "Needs 3.0y exp (you: \u22642)",
+        "Training-ish title"
+      ],
+      "emd_ok": true,
+      "proximity": 5
+    },
+    {
+      "id": "GEM/2026/B/7815328",
+      "portal": "gem",
+      "verdict": "SKIP",
+      "score": 13,
+      "title": "Custom Bid for Services - 01 x Project Manager,Custom Bid for Services - 01 x Manager Technical,Custom Bid for Services - 01 x  FME Senior Level,Custom Bid for Services - 01 x FME e Procurement,Custom Bid for Services - 05 x FMS Faculty Management Service",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9639226",
+      "bid_number": "GEM/2026/B/7815328",
+      "buyer": "Ministry of Defence / Department of Military Affairs",
+      "location": "Delhi",
+      "ends_at": "2026-08-03T13:00:00",
+      "why": [
+        "No EMD",
+        "Needs 3.0y exp (you: \u22642)",
+        "Needs \u20b9150L TO (you: \u2264\u20b940L)",
+        "Training-ish title"
+      ],
+      "emd_ok": true,
+      "proximity": 3
+    }
+  ],
+  "watch": [
+    {
+      "id": "f0e79550d44d1230",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Event or Seminar or Workshop or Exhibition or Expo Management Service - National; Theme Based Events; Conceptualization and Planning, Coordination and Staffing, IT related work, Marketing and Promotion, Participation arr",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9663144",
+      "buyer": "Khadi and Village Industries (Khadi Udyog) Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T20:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    },
+    {
+      "id": "f516db1c0e459d65",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Repair, Maintenance, and Installation of Plant/ Systems/Equipments (Version 2) - Repairing of 10/16 KVA to 25 KVA Wound Core Damaged Distribution Transformer at various workshop under EWD, Aligarh; Damaged Distribution T",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9661452",
+      "buyer": "Energy Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T13:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    },
+    {
+      "id": "9d5ad260de79ac6b",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Repair, Maintenance, and Installation of Plant/ Systems/Equipments (Version 2) - Repairing of 10/16 KVA to 25 KVA Wound Core Damaged Distribution Transformer at various workshop under EWD, Jhansi; Damaged Distribution Tr",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9661277",
+      "buyer": "Energy Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T13:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    },
+    {
+      "id": "c882ce6f176e1a66",
+      "portal": "tendersplus",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Uttarakhand Tourism Development Board Tender: DEVELOPMENT, OPERATIONS AND MAINTENANCE OF FOOD AND CRAFT INSTITUTE, ALMORA FOR  TRAINING AND SKILL DEVELOPMENT IN HOSPITALITY, TOURISM AND ALLIED SECTORS",
+      "url": "https://tendersplus.com/tender-details/7cee7555-fd8e-4053-a051-a35c54f82d7a",
+      "buyer": "Uttarakhand Tourism Development Board",
+      "location": "Almora, Uttarakhand",
+      "ends_at": "14 Sep 2026",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    }
+  ],
+  "fit_meta": {
+    "scanned": 15,
+    "match_count": 3
+  }
+}

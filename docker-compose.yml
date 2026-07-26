@@ -1,0 +1,23 @@
+services:
+  pulse:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./outputs:/app/outputs
+      - ./data:/app/data
+      - ./config:/app/config:ro
+    environment:
+      - PYTHONPATH=/app/src
+    restart: unless-stopped
+
+  # Optional daily scrape sidecar (same image)
+  pulse-scraper:
+    build: .
+    profiles: ["scrape"]
+    volumes:
+      - ./outputs:/app/outputs
+      - ./config:/app/config:ro
+    environment:
+      - PYTHONPATH=/app/src
+    entrypoint: ["python", "-m", "gem_agent", "hub-scrape"]

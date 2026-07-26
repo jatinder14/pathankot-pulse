@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pathankot-pulse
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: /app/src
+    disk:
+      name: pulse-data
+      mountPath: /app/outputs
+      sizeGB: 1

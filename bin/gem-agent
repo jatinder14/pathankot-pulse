@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+if [[ -f .venv/bin/activate ]]; then
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
+fi
+export PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
+# Prefer project pip.conf (avoids private CertifyOS index prompts)
+export PIP_CONFIG_FILE="${PIP_CONFIG_FILE:-$ROOT/pip.conf}"
+exec python -m gem_agent "$@"

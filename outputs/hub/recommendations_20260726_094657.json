@@ -1,0 +1,76 @@
+{
+  "updated_at": "2026-07-26T09:46:57.023588+00:00",
+  "company": "JR Consulting Co.",
+  "region": {
+    "id": "pathankot",
+    "label": "Pathankot, Punjab",
+    "pincode": "145023",
+    "state": "Punjab",
+    "city": "Pathankot",
+    "nearby": [
+      "Sujanpur",
+      "Gurdaspur",
+      "Kangra",
+      "Nurpur",
+      "Jammu"
+    ],
+    "radius_km": 40,
+    "region_mode": "fixed_default"
+  },
+  "rules": {
+    "prefer_no_emd": true,
+    "max_experience_years": 2,
+    "max_turnover_inr": 4000000,
+    "min_days_to_deadline": 7,
+    "focus": "CS / AI / digital literacy training for non-tech gov depts"
+  },
+  "apply": [],
+  "watch": [
+    {
+      "id": "f0e79550d44d1230",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Event or Seminar or Workshop or Exhibition or Expo Management Service - National; Theme Based Events; Conceptualization and Planning, Coordination and Staffing, IT related work, Marketing and Promotion, Participation arr",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9663144",
+      "buyer": "Khadi and Village Industries (Khadi Udyog) Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T20:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    },
+    {
+      "id": "f516db1c0e459d65",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Repair, Maintenance, and Installation of Plant/ Systems/Equipments (Version 2) - Repairing of 10/16 KVA to 25 KVA Wound Core Damaged Distribution Transformer at various workshop under EWD, Aligarh; Damaged Distribution T",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9661452",
+      "buyer": "Energy Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T13:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    },
+    {
+      "id": "9d5ad260de79ac6b",
+      "portal": "gem",
+      "verdict": "WATCH",
+      "score": 10,
+      "title": "Repair, Maintenance, and Installation of Plant/ Systems/Equipments (Version 2) - Repairing of 10/16 KVA to 25 KVA Wound Core Damaged Distribution Transformer at various workshop under EWD, Jhansi; Damaged Distribution Tr",
+      "url": "https://bidplus.gem.gov.in/showbidDocument/9661277",
+      "buyer": "Energy Department Uttar Pradesh",
+      "location": "India (GeM)",
+      "ends_at": "2026-07-27T13:00:00",
+      "why": [
+        "Keyword match \u2014 eligibility not fully verified yet"
+      ]
+    }
+  ],
+  "fit_meta": {
+    "scanned": 15,
+    "match_count": 0
+  }
+}

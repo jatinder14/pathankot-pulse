@@ -1,0 +1,103 @@
+# Default region for Pathankot Pulse (personal / private mode)
+region:
+  id: pathankot
+  label: Pathankot, Punjab
+  pincode: "145023"
+  state: Punjab
+  city: Pathankot
+  nearby:
+    - Sujanpur
+    - Gurdaspur
+    - Kangra
+    - Nurpur
+    - Jammu
+  radius_km: 40
+  # When publishing worldwide, set region_mode: user_select
+  region_mode: fixed_default
+
+owner:
+  mode: private  # private | public
+  brand: Pathankot Pulse
+  tagline: Tenders · bank auctions · local property — near 145023
+
+portals:
+  - id: tendersplus
+    name: TendersPlus (GeM · CPPP · eProc · IREPS · MSTC…)
+    section: Active tenders
+    kind: tenders
+    enabled: true
+  - id: gem
+    name: GeM BidPlus
+    section: Government tenders
+    kind: tenders
+    enabled: true
+  - id: cppp
+    name: CPPP eProcure
+    section: Government tenders
+    kind: tenders
+    enabled: true
+  - id: punjab
+    name: Punjab e-Procurement
+    section: State tenders
+    kind: tenders
+    enabled: true
+  - id: bank_auction
+    name: Bank auctions (IBAPI / BankeAuctions)
+    section: Bank property & vehicles
+    kind: auctions
+    enabled: true
+  - id: gov_auction
+    name: Gov auctions (MSTC / eAuction)
+    section: Gov property & vehicles
+    kind: auctions
+    enabled: true
+  - id: vehicles
+    name: Vehicles & scrap (gov / bank)
+    section: Vehicles & scrap
+    kind: auctions
+    enabled: true
+  - id: olx
+    name: OLX Pathankot
+    section: Local classifieds
+    kind: classifieds
+    enabled: true
+
+tendersplus:
+  # Daily / Refresh: pages per keyword (site hard-caps 10 rows/page)
+  max_pages_per_keyword: 8
+  year: 2026
+  # Full scrape keywords for JR Consulting preferences
+  keywords:
+    - training
+    - digital literacy
+    - artificial intelligence
+    - skill development
+    - computer
+    - capacity building
+    - e-learning
+  # Also scrape Punjab-focused pages
+  states:
+    - Punjab
+  # Optional deep scrape keywords (use CLI --full)
+  deep_keywords:
+    - Steel Bars
+    - Software
+    - Computers
+    - Vehicles
+    - Solar
+
+
+tender_filters:
+  # Same contractor conditions as gem-msme-bidder
+  prefer_no_emd: true
+  max_experience_years: 2
+  max_turnover_inr: 4000000
+  keywords_boost:
+    - training
+    - AI
+    - digital literacy
+    - capacity building
+    - computer
+    - skill
+  start_on_or_after_today: true
+  no_end_date_cutoff: true

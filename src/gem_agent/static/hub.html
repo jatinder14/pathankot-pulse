@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pathankot Pulse — Tender intelligence</title>
+  <meta name="description" content="Preference-matched government tenders and auctions for Pathankot, Punjab." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f172a;
+      --ink-2: #334155;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --accent: #0f4c81;
+      --accent-2: #0b3a63;
+      --accent-soft: #e8f1f8;
+      --ok: #047857;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --skip: #991b1b;
+      --font: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --display: "IBM Plex Serif", Georgia, serif;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(1.2) blur(8px);
+      background: rgba(255,255,255,0.92);
+    }
+    .topbar-inner {
+      max-width: 1160px; margin: 0 auto; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .brand {
+      display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink);
+    }
+    .brand-mark {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .nav { display: flex; gap: 20px; }
+    .nav a {
+      color: var(--ink-2); text-decoration: none; font-size: 0.875rem; font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .nav a:hover { color: var(--accent); }
+    .actions { display: flex; gap: 8px; }
+    button, .btn {
+      font-family: var(--font);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 9px 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease, opacity 0.15s;
+    }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.55; cursor: wait; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-2); }
+    .btn-ghost { background: #fff; color: var(--ink-2); border-color: var(--line); }
+    .btn-ghost:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+    .wrap {
+      max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px;
+      display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 28px;
+    }
+    @media (max-width: 960px) {
+      .wrap { grid-template-columns: 1fr; }
+      .nav { display: none; }
+    }
+
+    .eyebrow {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+    .lede {
+      margin: 0 0 22px; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; max-width: 62ch;
+    }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      margin-bottom: 12px;
+    }
+    .seg {
+      display: inline-flex; background: #fff; border: 1px solid var(--line);
+      border-radius: 9px; padding: 3px; gap: 2px;
+    }
+    .seg button {
+      border: 0; background: transparent; color: var(--muted);
+      padding: 7px 12px; border-radius: 6px; font-weight: 500;
+    }
+    .seg button.on {
+      background: var(--accent-soft); color: var(--accent);
+    }
+    .status {
+      font-size: 0.8125rem; color: var(--ok); margin: 0 0 18px; min-height: 1.2em;
+      animation: fade 0.35s ease;
+    }
+    .status.err { color: var(--bad); }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px 18px 14px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      animation: rise 0.45s ease both;
+    }
+    .panel-h {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+      margin-bottom: 12px;
+    }
+    .panel-h h2 {
+      margin: 0; font-size: 1rem; font-weight: 650; letter-spacing: -0.01em;
+    }
+    .panel-h span { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+
+    .rec {
+      display: grid; gap: 10px;
+    }
+    .rec-card {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start;
+      padding: 14px; border: 1px solid var(--line); border-radius: 10px;
+      background: #fcfdff;
+      transition: border-color 0.15s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      animation: rise 0.4s ease both;
+    }
+    .rec-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+      transform: translateY(-1px);
+    }
+    @media (max-width: 720px) { .rec-card { grid-template-columns: 1fr; } }
+    .badge {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 5px 8px; border-radius: 6px;
+      background: #f1f5f9; color: var(--ink-2);
+    }
+    .badge.apply { background: #d1fae5; color: #065f46; }
+    .badge.review { background: #ffedd5; color: #9a3412; }
+    .badge.skip { background: #fee2e2; color: #991b1b; }
+    .badge.watch { background: #e0e7ff; color: #3730a3; }
+    .rec-card h3 {
+      margin: 0 0 4px; font-size: 0.9375rem; font-weight: 600; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .meta-line { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+    .why { display: flex; flex-wrap: wrap; gap: 6px; }
+    .why span {
+      font-size: 0.7rem; font-weight: 500; color: var(--ink-2);
+      background: #f1f5f9; border-radius: 999px; padding: 4px 8px;
+    }
+    .link-btn {
+      align-self: center; text-decoration: none; font-size: 0.78rem; font-weight: 600;
+      color: var(--accent); border: 1px solid var(--line); background: #fff;
+      padding: 8px 12px; border-radius: 8px; white-space: nowrap;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .link-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+    .list-h {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin: 8px 0 12px;
+    }
+    .list-h h2 { margin: 0; font-size: 1.05rem; font-weight: 650; }
+    .list-h .count { color: var(--muted); font-size: 0.85rem; font-weight: 500; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 16px 14px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.15s;
+      animation: rise 0.35s ease both;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      border-color: #cbd5e1;
+    }
+    @media (max-width: 720px) { .card { grid-template-columns: 1fr; } }
+    .card-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .card-top h3 {
+      margin: 0; flex: 1; min-width: 180px;
+      font-size: 0.98rem; font-weight: 650; letter-spacing: -0.01em;
+    }
+    .pill {
+      font-size: 0.68rem; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent);
+    }
+    .pill.muted { background: #f1f5f9; color: var(--ink-2); }
+    .desc {
+      margin: 0 0 10px; font-size: 0.875rem; color: var(--ink-2); line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .boq {
+      margin: 0 0 12px; padding: 8px 10px; border-radius: 8px;
+      background: #fffbeb; border: 1px solid #fde68a;
+      font-size: 0.75rem; color: #78350f; line-height: 1.4;
+    }
+    .grid4 {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    @media (max-width: 720px) { .grid4 { grid-template-columns: 1fr 1fr; } }
+    .grid4 label {
+      display: block; font-size: 0.68rem; font-weight: 500; color: var(--muted);
+      margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .grid4 strong { font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
+    .card-actions { display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+    @media (max-width: 720px) { .card-actions { flex-direction: row; } }
+    .card-actions a {
+      text-align: center; text-decoration: none; font-size: 0.78rem; font-weight: 600;
+      padding: 9px 12px; border-radius: 8px; min-width: 128px;
+    }
+    .card-actions .primary { background: var(--accent); color: #fff; }
+    .card-actions .primary:hover { background: var(--accent-2); }
+    .card-actions .secondary {
+      background: #fff; color: var(--accent); border: 1px solid var(--line);
+    }
+    .card-actions .secondary:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+    .empty {
+      padding: 36px 20px; text-align: center; color: var(--muted);
+      border: 1px dashed var(--line); border-radius: 12px; background: #fff;
+      font-size: 0.9rem;
+    }
+
+    .side .box {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px;
+      padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow);
+      animation: rise 0.5s 0.05s ease both;
+    }
+    .side h3 {
+      margin: 0 0 10px; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted);
+    }
+    .side a {
+      display: block; padding: 8px 0; font-size: 0.84rem; color: var(--ink-2);
+      text-decoration: none; border-bottom: 1px solid var(--line);
+      transition: color 0.15s;
+    }
+    .side a:last-child { border-bottom: 0; }
+    .side a:hover { color: var(--accent); }
+    .prefs { font-size: 0.8125rem; color: var(--ink-2); line-height: 1.7; }
+    .side .cta-box {
+      background: linear-gradient(165deg, #0f4c81, #0b3a63);
+      color: #e8f1f8; border: 0;
+    }
+    .side .cta-box h3 { color: rgba(255,255,255,0.7); }
+    .side .cta-box p { margin: 0 0 12px; font-size: 0.84rem; line-height: 1.45; opacity: 0.92; }
+    .side .cta-box button {
+      width: 100%; background: #fff; color: var(--accent-2); border: 0;
+    }
+
+    footer {
+      max-width: 1160px; margin: 0 auto; padding: 0 20px 40px;
+      display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      font-size: 0.75rem; color: var(--muted);
+    }
+    footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">Pathankot Pulse</span>
+        <span class="brand-sub">Tender intel</span>
+      </a>
+      <nav class="nav">
+        <a href="#recommended">For you</a>
+        <a href="#listings">Active tenders</a>
+        <a href="#auctions">Auctions</a>
+        <a href="/gem">GeM tools</a>
+      </nav>
+      <div class="actions">
+        <button class="btn-ghost" type="button" onclick="load()">Reload</button>
+        <button class="btn-primary" id="btn" type="button" onclick="refreshAll()">Refresh &amp; match</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <main>
+      <div class="eyebrow">Pathankot · Punjab · 145023</div>
+      <h1>Active tenders</h1>
+      <p class="lede">
+        Matched to your MSME profile — we scrape GeM, CPPP, eProc, IREPS, MSTC and more,
+        then surface only real listings. No search shortcuts.
+      </p>
+
+      <div class="toolbar">
+        <div class="seg" id="kwSeg"></div>
+      </div>
+      <div class="status" id="status"></div>
+
+      <section class="panel" id="recommended">
+        <div class="panel-h">
+          <h2>Recommended for you</h2>
+          <span>JR Consulting preferences</span>
+        </div>
+        <div class="rec" id="applyList"></div>
+      </section>
+
+      <div class="list-h" id="listings">
+        <h2>Listings</h2>
+        <span class="count" id="totalCount"></span>
+      </div>
+      <div id="tenderList"></div>
+      <div id="auctionList"></div>
+    </main>
+
+    <aside class="side">
+      <div class="box cta-box">
+        <h3>Daily pulse</h3>
+        <p>Scheduler runs at 07:00 IST. Refresh now to re-scan portals and re-rank matches.</p>
+        <button type="button" onclick="refreshAll()">Run scrape</button>
+      </div>
+      <div class="box">
+        <h3>Sources</h3>
+        <a href="#listings">GeM</a>
+        <a href="#listings">CPPP / eprocure</a>
+        <a href="#listings">IREPS · MSTC · nProcure</a>
+        <a href="#listings">Punjab e-Procurement</a>
+        <a href="#auctions">Bank &amp; gov auctions</a>
+        <a href="#auctions">OLX Pathankot</a>
+      </div>
+      <div class="box">
+        <h3>Your filters</h3>
+        <div class="prefs" id="prefBox"></div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <span>Pathankot Pulse · JR Consulting Co. · private by default</span>
+    <span><a href="/api/hub">API</a> · <a href="/health">Health</a></span>
+  </footer>
+
+  <script>
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    let HUB = null;
+    let activeKw = "all";
+
+    function setStatus(m, err=false) {
+      const el = document.getElementById("status");
+      el.textContent = m || "";
+      el.className = "status" + (err ? " err" : "");
+    }
+
+    function allTenders(by) {
+      return [...(by.tendersplus || []), ...(by.gem || []), ...(by.cppp || []), ...(by.punjab || [])];
+    }
+
+    function renderPrefs(rec) {
+      const r = (rec && rec.rules) || {};
+      document.getElementById("prefBox").innerHTML = `
+        No / exempt EMD<br/>
+        Experience ≤ ${r.max_experience_years ?? 2} years<br/>
+        Turnover ≤ ₹${((r.max_turnover_inr||4000000)/100000).toFixed(0)}L<br/>
+        ≥ ${r.min_days_to_deadline ?? 7} days to close<br/>
+        Focus: CS / AI / digital literacy<br/>
+        Region: Pathankot, Punjab 145023
+      `;
+    }
+
+    function renderApply(rec) {
+      const rows = [...(rec.apply || []), ...(rec.watch || []).slice(0, 4)];
+      if (!rows.length) {
+        document.getElementById("applyList").innerHTML =
+          `<div class="empty">No preference matches yet. Run <b>Refresh &amp; match</b>.</div>`;
+        return;
+      }
+      document.getElementById("applyList").innerHTML = rows.map((r, i) => `
+        <article class="rec-card" style="animation-delay:${i * 0.04}s">
+          <div class="badge ${(r.verdict||'watch').toLowerCase()}">${esc(r.verdict||'WATCH')}</div>
+          <div>
+            <h3>${esc(r.title)}</h3>
+            <div class="meta-line">${esc([r.bid_number, r.buyer||r.portal, r.location].filter(Boolean).join(" · "))}</div>
+            <div class="why">${(r.why||[]).map(w => `<span>${esc(w)}</span>`).join("")}</div>
+          </div>
+          <a class="link-btn" href="${esc(r.url||'#')}" target="_blank" rel="noopener">Open bid</a>
+        </article>`).join("");
+    }
+
+    function tenderCard(l, i) {
+      const meta = l.meta || {};
+      const src = meta.source || l.portal || "";
+      const state = (l.location || "").split(",").pop()?.trim() || "";
+      const desc = l.title.includes(":") ? l.title.split(":").slice(1).join(":").trim() : (l.summary || l.title);
+      const boq = (l.summary && l.summary !== desc) ? l.summary : "";
+      return `
+        <article class="card" style="animation-delay:${Math.min(i, 10) * 0.03}s">
+          <div>
+            <div class="card-top">
+              <h3>${esc((l.buyer || l.title || "Tender").split(":")[0])}</h3>
+              ${state ? `<span class="pill">${esc(state)}</span>` : ""}
+              <span class="pill muted">${esc(src)}</span>
+            </div>
+            <p class="desc">${esc(desc)}</p>
+            ${boq ? `<div class="boq">${esc(boq.slice(0, 220))}${boq.length > 220 ? "…" : ""}</div>` : ""}
+            <div class="grid4">
+              <div><label>Opening</label><strong>${esc(l.starts_at || "—")}</strong></div>
+              <div><label>Closing</label><strong>${esc(l.ends_at || "—")}</strong></div>
+              <div><label>Value</label><strong>${esc(l.price || "—")}</strong></div>
+              <div><label>Location</label><strong>${esc(l.location || "—")}</strong></div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <a class="primary" href="${esc(l.url||'#')}" target="_blank" rel="noopener">Details</a>
+            <a class="secondary" href="${esc(l.url||'#')}" target="_blank" rel="noopener">Source</a>
+          </div>
+        </article>`;
+    }
+
+    function renderList(by) {
+      const tenders = allTenders(by);
+      document.getElementById("totalCount").textContent = `${tenders.length.toLocaleString("en-IN")} results`;
+      const kws = [...new Set(tenders.map(t => (t.meta || {}).keyword).filter(Boolean))];
+      document.getElementById("kwSeg").innerHTML = [
+        `<button type="button" class="${activeKw==='all'?'on':''}" onclick="setKw('all')">All</button>`,
+        ...kws.slice(0, 8).map(k =>
+          `<button type="button" class="${activeKw===k.toLowerCase()?'on':''}" onclick="setKw('${esc(k.toLowerCase())}')">${esc(k)}</button>`
+        ),
+      ].join("");
+
+      const filtered = activeKw === "all"
+        ? tenders
+        : tenders.filter(t => ((t.meta || {}).keyword || "").toLowerCase() === activeKw);
+
+      // Cap DOM for performance — show first 100 with note
+      const shown = filtered.slice(0, 100);
+      const more = filtered.length > 100
+        ? `<div class="empty">Showing 100 of ${filtered.length.toLocaleString("en-IN")}. Filter by keyword or use the API for the full set.</div>`
+        : "";
+      document.getElementById("tenderList").innerHTML = shown.length
+        ? shown.map(tenderCard).join("") + more
+        : `<div class="empty">No tenders yet. Click <b>Refresh &amp; match</b>.</div>`;
+
+      const auctions = [...(by.bank_auction||[]), ...(by.gov_auction||[]), ...(by.vehicles||[]), ...(by.olx||[])];
+      document.getElementById("auctionList").innerHTML =
+        `<div class="list-h" id="auctions"><h2>Auctions &amp; nearby property</h2><span class="count">${auctions.length}</span></div>` +
+        (auctions.length ? auctions.slice(0, 40).map(tenderCard).join("") : `<div class="empty">No auction listings yet.</div>`);
+    }
+
+    function setKw(k) {
+      activeKw = k;
+      if (HUB) renderList(HUB.by_portal || {});
+    }
+
+    async function load() {
+      setStatus("Loading…");
+      try {
+        const res = await fetch("/api/hub");
+        HUB = await res.json();
+        renderPrefs(HUB.recommendations || {});
+        renderApply(HUB.recommendations || {});
+        renderList(HUB.by_portal || {});
+        const n = (HUB.recommendations?.apply || []).length;
+        setStatus(`Ready · ${n} preference matches · updated ${HUB.updated_at ? new Date(HUB.updated_at).toLocaleString("en-IN") : "—"}`);
+      } catch (e) {
+        setStatus("Failed to load: " + e, true);
+      }
+    }
+
+    async function refreshAll() {
+      const btn = document.getElementById("btn");
+      btn.disabled = true;
+      setStatus("Scanning portals and matching your preferences…");
+      try {
+        const res = await fetch("/api/hub/scrape", { method: "POST" });
+        const data = await res.json();
+        setStatus(`Done · ${JSON.stringify(data.counts || {})}`);
+        await load();
+      } catch (e) {
+        setStatus("Refresh failed: " + e, true);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>

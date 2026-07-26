@@ -1,0 +1,42 @@
+[
+  {
+    "bid_number": "GEM/2026/B/7775635",
+    "title": "Vocational Training Services  - Version 2 - offline; 8; Third party location; High School CTE programs",
+    "url": "https://bidplus.gem.gov.in/showbidDocument/9593784",
+    "decision": "maybe",
+    "summary": "GEM/2026/B/7775635: Vocational Training Services  - Version 2 - offline; 8; Third party location; High School CTE programs. Buyer: N/A / General Administration Department Assam. Heuristic decision: maybe.",
+    "draft": "/Users/flexiple_jr/Desktop/talent/gem-tender-agent/outputs/proposals/GEM_2026_B_7775635_technical_draft.md",
+    "end_at": "2026-07-27T15:00:00+00:00",
+    "ministry": null
+  },
+  {
+    "bid_number": "GEM/2026/B/7812773",
+    "title": "Professional Training Services (Version 2) - offline; Weekdays",
+    "url": "https://bidplus.gem.gov.in/showbidDocument/9636351",
+    "decision": "maybe",
+    "summary": "GEM/2026/B/7812773: Professional Training Services (Version 2) - offline; Weekdays. Buyer: Ministry of Defence / Department of Defence Production. Heuristic decision: maybe.",
+    "draft": "/Users/flexiple_jr/Desktop/talent/gem-tender-agent/outputs/proposals/GEM_2026_B_7812773_technical_draft.md",
+    "end_at": "2026-07-24T13:00:00+00:00",
+    "ministry": "Ministry of Defence"
+  },
+  {
+    "bid_number": "GEM/2026/B/7568718",
+    "title": "Professional Training Services (Version 2) - online; Weekdays",
+    "url": "https://bidplus.gem.gov.in/showbidDocument/9361270",
+    "decision": "maybe",
+    "summary": "GEM/2026/B/7568718: Professional Training Services (Version 2) - online; Weekdays. Buyer: Ministry of Defence / Department of Military Affairs. Heuristic decision: maybe.",
+    "draft": "/Users/flexiple_jr/Desktop/talent/gem-tender-agent/outputs/proposals/GEM_2026_B_7568718_technical_draft.md",
+    "end_at": "2026-07-24T13:00:00+00:00",
+    "ministry": "Ministry of Defence"
+  },
+  {
+    "bid_number": "GEM/2026/B/7728614",
+    "title": "Professional Training Services (Version 2) - online; Not-Applicable",
+    "url": "https://bidplus.gem.gov.in/showbidDocument/9540674",
+    "decision": "maybe",
+    "summary": "GEM/2026/B/7728614: Professional Training Services (Version 2) - online; Not-Applicable. Buyer: Ministry of Defence / Department of Military Affairs. Heuristic decision: maybe.",
+    "draft": "/Users/flexiple_jr/Desktop/talent/gem-tender-agent/outputs/proposals/GEM_2026_B_7728614_technical_draft.md",
+    "end_at": "2026-07-24T14:00:00+00:00",
+    "ministry": "Ministry of Defence"
+  }
+]
