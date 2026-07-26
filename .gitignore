@@ -13,7 +13,11 @@ outputs/proposals/*
 !outputs/proposals/.gitkeep
 outputs/apply_kit/
 outputs/digests/
+outputs/browser_profiles/
 outputs/hub/leads_*.json
+outputs/hub/recommendations_*.json
+outputs/gem_captcha.txt
+outputs/gem_otp.txt
 *.log
 .DS_Store
 .cookies/
