@@ -824,7 +824,7 @@ def usable_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> list[
 
 
 def pathankot_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
-    """Active jobs explicitly in / for Pathankot."""
+    """Active jobs in Pathankot city / plant (not only 'near Pathankot')."""
     if leads is None:
         from .store import load_leads
 
@@ -836,12 +836,19 @@ def pathankot_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> li
         posted = parse_posted_date(meta.get("posted_at"))
         if posted and not is_active(posted):
             continue
-        blob = f"{d.get('title')} {d.get('summary')} {d.get('location')} {d.get('buyer')}".lower()
-        if (
-            meta.get("pathankot")
-            or "pathankot" in (d.get("tags") or [])
-            or any(t in blob for t in PATHANKOT_TOKENS)
+        blob = f"{d.get('title')} {d.get('summary')} {d.get('location')} {d.get('buyer')}"
+        rank = meta.get("location_rank")
+        if rank is None:
+            rank = location_rank(blob)
+        # Home only
+        if int(rank) == 0 or re.search(
+            r"pathankot,\s*punjab|/job/pathankot/|pathankot plant", blob, re.I
         ):
+            # Exclude pure Kathua/Jammu with only "near Pathankot"
+            if re.search(r"\bkathua\b|\bjammu\b|\bsamba\b", blob, re.I) and not re.search(
+                r"pathankot,\s*punjab|/job/pathankot/|sujanpur", blob, re.I
+            ):
+                continue
             out.append(d)
     out.sort(key=lambda x: -int((x.get("meta") or {}).get("fit_score") or 0))
     return out
