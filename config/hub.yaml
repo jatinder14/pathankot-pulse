@@ -21,10 +21,35 @@ owner:
   brand: Pathankot Pulse
   tagline: Tenders · private jobs · bank auctions — Pathankot / Kathua / Jammu
 
-# Private-sector jobs (Indeed / Jooble / TimesJobs) — daily + Update listings
+# Private-sector jobs — local factories/brands + remote IT/training
 private_jobs:
   enabled: true
   alert_on_usable: true
+  # Brands / factories near Pathankot · Kathua · Jammu (hit their hiring pages)
+  local_employers:
+    - name: Kandhari Beverages (Coca-Cola FBO)
+      location: Kathua, J&K · near Pathankot
+      search:
+        - Kandhari Kathua
+        - Kandhari Beverages Coca Cola
+        - Coca Cola bottling Kathua
+    - name: Varun Beverages (PepsiCo franchise)
+      location: Pathankot, Punjab
+      search:
+        - Varun Beverages Pathankot
+        - Varun Beverages
+    - name: Pioneer Industries
+      location: Pathankot, Punjab · distillery / starch
+      search:
+        - Pioneer Industries Pathankot
+    - name: PDIL (Projects & Development India Ltd)
+      location: PSU · contract sites pan-India
+      search:
+        - PDIL hiring contract
+  apna_cities:
+    - pathankot
+    - kathua
+    - jammu
   locations:
     - Pathankot, Punjab
     - Kathua, Jammu and Kashmir
@@ -32,18 +57,16 @@ private_jobs:
     - Gurdaspur, Punjab
     - Punjab
   queries:
+    - factory supervisor Pathankot
+    - IT support factory Pathankot
+    - area manager Pathankot
     - AI training partner
     - digital literacy trainer
     - computer instructor
-    - IT support
-    - IT technician
-    - area manager IT
-    - software contractor
-    - computer hardware
-    - skill development trainer
-    - e-learning
-    - technical support engineer
-    - edtech trainer
+    - IT technician Kathua
+    - software engineer Jammu
+    - maintenance engineer beverage
+    - production executive Kathua
 
 portals:
   - id: tendersplus

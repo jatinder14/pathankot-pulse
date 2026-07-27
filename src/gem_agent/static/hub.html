@@ -397,7 +397,8 @@
           </div>
           <div class="view-toolbar">
             <div class="seg" id="jobsSeg">
-              <button type="button" class="on" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
+              <button type="button" class="on" id="jobsLocalBtn" onclick="setJobsFilter('local')">Local factories</button>
+              <button type="button" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
               <button type="button" id="jobsAllBtn" onclick="setJobsFilter('all')">All scraped</button>
             </div>
             <button class="btn-ghost" type="button" onclick="scrapeJobsOnly()" id="btnJobsScrape" style="margin-left:auto">
@@ -474,7 +475,7 @@
     let activeKw = "all";
     let scraping = false;
     let pollTimer = null;
-    let jobsFilter = "usable";
+    let jobsFilter = "local";
     let activeTab = "for-you";
 
     const TAB_META = {
@@ -484,7 +485,7 @@
       },
       jobs: {
         title: "Private jobs",
-        lede: "AI training partner, IT support, area manager, and software/computer contractor roles near Pathankot, Kathua, Jammu, and Punjab.",
+        lede: "Local factory & brand hiring — Kandhari/Coca-Cola (Kathua), Varun/Pepsi (Pathankot), Pioneer, PDIL — plus IT and training roles nearby.",
       },
       tenders: {
         title: "Active tenders",
@@ -575,6 +576,7 @@
 
     function setJobsFilter(mode) {
       jobsFilter = mode;
+      document.getElementById("jobsLocalBtn").classList.toggle("on", mode === "local");
       document.getElementById("jobsUsableBtn").classList.toggle("on", mode === "usable");
       document.getElementById("jobsAllBtn").classList.toggle("on", mode === "all");
       if (HUB) renderJobs(HUB);
@@ -584,25 +586,35 @@
       const pj = hub.private_jobs || {};
       const all = pj.all || (hub.by_portal || {}).private_jobs || [];
       const usable = pj.usable || [];
-      const rows = jobsFilter === "usable" ? usable : all;
+      const local = pj.local_factory || all.filter(j =>
+        (j.tags || []).includes("local_factory") ||
+        (j.meta || {}).local_factory ||
+        /kandhari|coca|varun|pepsi|pioneer|pdil|beverage|factory/i.test(`${j.title} ${j.summary} ${j.buyer}`)
+      );
+      const rows = jobsFilter === "local" ? local
+        : jobsFilter === "usable" ? usable
+        : all;
       document.getElementById("jobsMeta").textContent =
-        `${usable.length} usable · ${all.length} scraped · Pathankot / Kathua / Jammu / Punjab`;
+        `${local.length} local factory · ${usable.length} usable · ${all.length} total · Kathua / Pathankot / Jammu`;
       if (!rows.length) {
         document.getElementById("jobsList").innerHTML =
-          `<div class="empty">No private jobs yet. Click <b>Refresh jobs</b> or <b>Update listings</b>.</div>`;
+          `<div class="empty">No local factory jobs yet. Click <b>Refresh jobs</b> — we scan Coca-Cola/Kandhari, Varun, Pioneer, Apna, and more.</div>`;
         return;
       }
       document.getElementById("jobsList").innerHTML = rows.slice(0, 40).map((j, i) => {
         const meta = j.meta || {};
         const score = meta.fit_score ?? "—";
+        const isLocal = meta.local_factory || (j.tags || []).includes("local_factory");
         const usableTag = meta.usable || (j.tags || []).includes("usable");
+        const badge = isLocal ? (usableTag ? "LOCAL · USABLE" : "LOCAL") : (usableTag ? "USABLE" : "JOB");
         const why = [...(meta.role_hits || []), ...(meta.near_hits || [])].slice(0, 6);
+        const emp = meta.employer || j.buyer || meta.source || "";
         return `
         <article class="rec-card" style="animation-delay:${i * 0.03}s">
-          <div class="badge ${usableTag ? 'apply' : 'watch'}">${usableTag ? 'USABLE' : 'JOB'} · ${esc(score)}</div>
+          <div class="badge ${usableTag || isLocal ? 'apply' : 'watch'}">${esc(badge)} · ${esc(score)}</div>
           <div>
             <h3>${esc(j.title)}</h3>
-            <div class="meta-line">${esc([j.location, j.buyer || meta.source, meta.query].filter(Boolean).join(" · "))}</div>
+            <div class="meta-line">${esc([emp, j.location, meta.query].filter(Boolean).join(" · "))}</div>
             <div class="why">${why.map(w => `<span>${esc(w)}</span>`).join("")}</div>
           </div>
           <a class="link-btn" href="${esc(j.url||'#')}" target="_blank" rel="noopener">Open job</a>

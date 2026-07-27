@@ -91,10 +91,18 @@ Product surface: **Private jobs** tab in Pathankot Pulse (`/` UI).
 
 **Target roles (usable for JR Consulting):**
 
+- **Local factories/brands:** Kandhari/Coca-Cola (Kathua), Varun/Pepsi (Pathankot), Pioneer Industries, PDIL
 - AI training partner / integration / edtech trainer
 - Digital literacy / computer instructor / skill development
 - Area manager (IT) · IT support / technician · technical support
 - Software / computer contractor / freelance consultant near home belt
+
+**Scrape sources (local first):**
+
+- `foodtechnetwork.in` — Kandhari, Varun, beverage plant roles
+- `apna.co` — Pathankot / Kathua / Jammu verified vacancies
+- `jobsfood.tech` — Pioneer distillery / food manufacturing
+- Remote boards secondary (Remotive, Jobicy)
 
 **Geography:** Pathankot, Kathua, Jammu, Gurdaspur, wider Punjab (+ remote/WFH
 when role fits).
