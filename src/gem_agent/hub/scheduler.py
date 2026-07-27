@@ -11,7 +11,7 @@ _scheduler: Any = None
 
 
 def start_daily_scheduler() -> None:
-    """Idempotent: schedule hub-scrape every day at 07:00 IST."""
+    """Idempotent: schedule hub-scrape (tenders + private jobs + alerts) at 07:00 IST."""
     global _scheduler
     if _scheduler is not None:
         return
@@ -25,12 +25,24 @@ def start_daily_scheduler() -> None:
     from . import run_hub_scrape
 
     def _job() -> None:
-        logger.info("Daily hub scrape starting")
+        logger.info("Daily hub scrape starting (tenders + private jobs + alerts)")
         try:
             result = run_hub_scrape()
-            logger.info("Daily hub scrape done: %s", result.get("counts"))
+            logger.info(
+                "Daily hub scrape done: counts=%s alerts=%s",
+                result.get("counts"),
+                result.get("alerts"),
+            )
         except Exception:  # noqa: BLE001
             logger.exception("Daily hub scrape failed")
+
+    def _jobs_only() -> None:
+        logger.info("Afternoon private-jobs scrape starting")
+        try:
+            result = run_hub_scrape(portals=["private_jobs"], with_recommendations=False)
+            logger.info("Afternoon jobs scrape done: %s", result.get("counts"))
+        except Exception:  # noqa: BLE001
+            logger.exception("Afternoon jobs scrape failed")
 
     sched = BackgroundScheduler(timezone="Asia/Kolkata")
     sched.add_job(
@@ -41,9 +53,17 @@ def start_daily_scheduler() -> None:
         max_instances=1,
         coalesce=True,
     )
+    sched.add_job(
+        _jobs_only,
+        CronTrigger(hour=14, minute=0, timezone="Asia/Kolkata"),
+        id="hub_jobs_afternoon",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
     sched.start()
     _scheduler = sched
-    logger.info("Daily hub scrape scheduled for 07:00 Asia/Kolkata")
+    logger.info("Daily scrape 07:00 + private jobs 14:00 Asia/Kolkata")
 
 
 def stop_daily_scheduler() -> None:
@@ -57,5 +77,15 @@ def scheduler_status() -> dict[str, Any]:
     if _scheduler is None:
         return {"running": False, "next_run": None}
     job = _scheduler.get_job("hub_daily_scrape")
+    jobs_job = _scheduler.get_job("hub_jobs_afternoon")
     next_run = job.next_run_time.isoformat() if job and job.next_run_time else None
-    return {"running": True, "next_run": next_run, "timezone": "Asia/Kolkata", "cron": "07:00"}
+    next_jobs = (
+        jobs_job.next_run_time.isoformat() if jobs_job and jobs_job.next_run_time else None
+    )
+    return {
+        "running": True,
+        "next_run": next_run,
+        "next_jobs_run": next_jobs,
+        "timezone": "Asia/Kolkata",
+        "cron": "07:00 full · 14:00 private jobs",
+    }

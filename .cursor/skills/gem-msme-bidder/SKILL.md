@@ -3,10 +3,13 @@ name: gem-msme-bidder
 description: >-
   JR Consulting Co. GeM MSME bidding rules: Pathankot/Punjab-first location
   preference, eligibility filters, full agent autonomy to download all bid/ATC
-  docs and prepare apply packets, OTP automation, and apply-kit conventions.
-  Use when the user asks about GeM bids, tenders, ATC download, prepare bid
-  docs, contractor fit, MSME/EMD exemption, Pathankot training contracts,
-  gem-tender-agent, or JR Consulting Co. bidding.
+  docs and prepare apply packets, OTP automation, apply-kit conventions, and
+  Pathankot Pulse private jobs (AI training partner, IT support, area manager,
+  software/computer contractor near Pathankot / Kathua / Jammu / Punjab) with
+  daily scrape + Telegram/email alerts. Use when the user asks about GeM bids,
+  tenders, ATC download, prepare bid docs, contractor fit, MSME/EMD exemption,
+  Pathankot training contracts, private jobs near Jammu/Kathua, gem-tender-agent,
+  Pathankot Pulse, or JR Consulting Co. bidding.
 ---
 
 # GeM MSME Bidder — JR Consulting Co.
@@ -64,10 +67,11 @@ else for that bid.
 When scouting or ranking, **location is a first-class sort key**:
 
 1. **Pathankot / nearby Punjab** (Sujanpur, Gurdaspur belt, local consignees) — **highest priority**
-2. **Rest of Punjab** — still strong
-3. **Online / remote delivery** with no foreign-state office clause — strong
-4. **Other states** — only if we are **eligible** (see below)
-5. Deprioritize or flag 🔴 if office-in-consignee-state cannot be met
+2. **Kathua / Jammu (J&K belt)** — treat as near-home for private jobs & local work
+3. **Rest of Punjab** — still strong
+4. **Online / remote delivery** with no foreign-state office clause — strong
+5. **Other states** — only if we are **eligible** (see below)
+6. Deprioritize or flag 🔴 if office-in-consignee-state cannot be met
 
 **Eligible for other states when any of:**
 
@@ -78,6 +82,40 @@ When scouting or ranking, **location is a first-class sort key**:
 
 Do **not** skip a good out-of-state bid solely because it is not Pathankot —
 rank it below local/Punjab/online, then pursue if EMD/exp/TO filters pass.
+
+---
+
+## 2b. Private jobs (Pathankot Pulse tab)
+
+Product surface: **Private jobs** tab in Pathankot Pulse (`/` UI).
+
+**Target roles (usable for JR Consulting):**
+
+- AI training partner / integration / edtech trainer
+- Digital literacy / computer instructor / skill development
+- Area manager (IT) · IT support / technician · technical support
+- Software / computer contractor / freelance consultant near home belt
+
+**Geography:** Pathankot, Kathua, Jammu, Gurdaspur, wider Punjab (+ remote/WFH
+when role fits).
+
+**Daily automation:**
+
+- Full hub scrape **07:00 IST** (tenders + private jobs + alerts)
+- Extra private-jobs scrape **14:00 IST**
+- UI: **Refresh jobs** or **Update listings**
+- Config: `config/hub.yaml` → `private_jobs`
+- Code: `src/gem_agent/hub/jobs.py`, `hub/alerts.py`
+
+**Alerts (usable matches only):**
+
+- Telegram (`TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`)
+- Email via Gmail SMTP (`GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD`)
+- Deduped in `outputs/hub/alerted_ids.json`
+- Also alert on new GeM **APPLY**-grade tender matches after daily scrape
+
+Agent should keep this tab populated and treat usable private jobs as first-class
+leads alongside GeM training tenders.
 
 ---
 
@@ -242,3 +280,5 @@ Flow: userid + captcha → password → **Generate OTP** → IMAP read GeM email
 - “Prepare full apply pack for GEM/2026/B/7830951”  
 - “Download all docs for this bid and draft the proposal”  
 - “Rank these bids by our location + MSE rules”
+- “Scrape private jobs near Kathua / Jammu for AI training / IT support”
+- “Alert me when a usable private job or APPLY tender appears”

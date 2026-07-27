@@ -15,7 +15,7 @@ company:
   home_state: Punjab
   address: "221, JR Consulting Co., Arya samaj gali, Sujanpur, Pathankot, Punjab 145023"
   states: [Punjab]
-  nearby_cities: [Pathankot, Gurdaspur, Kangra, Amritsar, Hoshiarpur, Jammu, Jalandhar, Mohali, Chandigarh]
+  nearby_cities: [Pathankot, Kathua, Jammu, Gurdaspur, Kangra, Amritsar, Hoshiarpur, Jalandhar, Mohali, Chandigarh]
   max_bid_value_inr: 5000000
   min_margin_pct: 18
   contact_email: "jatinder1901243@gmail.com"

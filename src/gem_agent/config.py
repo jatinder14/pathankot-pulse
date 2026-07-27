@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
 
+    gmail_address: str = ""
+    gmail_app_password: str = ""
+
     gem_username: str = ""
     gem_password: str = ""
 

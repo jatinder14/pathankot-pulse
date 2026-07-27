@@ -11,14 +11,39 @@ region:
     - Kangra
     - Nurpur
     - Jammu
-  radius_km: 40
+    - Kathua
+  radius_km: 80
   # When publishing worldwide, set region_mode: user_select
   region_mode: fixed_default
 
 owner:
   mode: private  # private | public
   brand: Pathankot Pulse
-  tagline: Tenders · bank auctions · local property — near 145023
+  tagline: Tenders · private jobs · bank auctions — Pathankot / Kathua / Jammu
+
+# Private-sector jobs (Indeed / Jooble / TimesJobs) — daily + Update listings
+private_jobs:
+  enabled: true
+  alert_on_usable: true
+  locations:
+    - Pathankot, Punjab
+    - Kathua, Jammu and Kashmir
+    - Jammu, Jammu and Kashmir
+    - Gurdaspur, Punjab
+    - Punjab
+  queries:
+    - AI training partner
+    - digital literacy trainer
+    - computer instructor
+    - IT support
+    - IT technician
+    - area manager IT
+    - software contractor
+    - computer hardware
+    - skill development trainer
+    - e-learning
+    - technical support engineer
+    - edtech trainer
 
 portals:
   - id: tendersplus
@@ -61,6 +86,11 @@ portals:
     section: Local classifieds
     kind: classifieds
     enabled: true
+  - id: private_jobs
+    name: Private jobs (AI · IT · contractor)
+    section: Private jobs
+    kind: jobs
+    enabled: true
 
 tendersplus:
   # Daily / Refresh: pages per keyword (site hard-caps 10 rows/page)
@@ -85,7 +115,6 @@ tendersplus:
     - Computers
     - Vehicles
     - Solar
-
 
 tender_filters:
   # Same contractor conditions as gem-msme-bidder

@@ -117,6 +117,7 @@ def health():
 
 @app.get("/api/hub")
 def api_hub():
+    from .hub.jobs import usable_jobs
     from .hub.recommend import load_recommendations
     from .hub.scheduler import scheduler_status
     from .hub.store import load_hub_config, load_leads
@@ -143,10 +144,50 @@ def api_hub():
         "portals": cfg.get("portals") or [],
         "region": cfg.get("region") or data.get("region"),
         "tender_filters": cfg.get("tender_filters") or {},
+        "private_jobs": cfg.get("private_jobs") or {},
     }
     data["scheduler"] = scheduler_status()
     data["recommendations"] = load_recommendations()
+    jobs = cleaned.get("private_jobs") or []
+    data["private_jobs"] = {
+        "all": jobs,
+        "usable": usable_jobs(jobs),
+        "count": len(jobs),
+        "usable_count": len(usable_jobs(jobs)),
+    }
     return data
+
+
+@app.get("/api/hub/jobs")
+def api_hub_jobs(usable_only: bool = Query(False)):
+    from .hub.jobs import usable_jobs
+    from .hub.store import load_leads
+
+    rows = (load_leads().get("by_portal") or {}).get("private_jobs") or []
+    if usable_only:
+        return {"jobs": usable_jobs(rows), "count": len(usable_jobs(rows))}
+    return {"jobs": rows, "usable": usable_jobs(rows), "count": len(rows)}
+
+
+@app.post("/api/hub/jobs/scrape")
+def api_hub_jobs_scrape():
+    """Scrape only private jobs + send alerts for new usable matches."""
+    from .hub import run_hub_scrape
+
+    return run_hub_scrape(
+        portals=["private_jobs"],
+        with_recommendations=False,
+        fit_pages=0,
+        fit_max_docs=0,
+    )
+
+
+@app.post("/api/hub/alerts/test")
+def api_hub_alerts_test():
+    """Re-send alert for current usable jobs (ignores dedupe)."""
+    from .hub.alerts import alert_new_usable_jobs
+
+    return alert_new_usable_jobs(force=True)
 
 
 @app.get("/api/hub/recommendations")

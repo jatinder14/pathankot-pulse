@@ -344,6 +344,7 @@
       </a>
       <nav class="nav">
         <a href="#recommended">For you</a>
+        <a href="#private-jobs">Private jobs</a>
         <a href="#listings">Active tenders</a>
         <a href="#auctions">Auctions</a>
         <a href="/gem">GeM tools</a>
@@ -383,6 +384,23 @@
         <div class="rec" id="applyList"></div>
       </section>
 
+      <section class="panel" id="private-jobs">
+        <div class="panel-h">
+          <h2>Private jobs</h2>
+          <span id="jobsMeta">AI training · IT support · contractor · near Kathua / Jammu / Punjab</span>
+        </div>
+        <div class="toolbar" style="margin-bottom:12px">
+          <div class="seg" id="jobsSeg">
+            <button type="button" class="on" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
+            <button type="button" id="jobsAllBtn" onclick="setJobsFilter('all')">All scraped</button>
+          </div>
+          <button class="btn-ghost" type="button" onclick="scrapeJobsOnly()" id="btnJobsScrape" style="margin-left:auto">
+            Refresh jobs
+          </button>
+        </div>
+        <div class="rec" id="jobsList"></div>
+      </section>
+
       <div class="list-h" id="listings">
         <h2>Listings</h2>
         <span class="count" id="totalCount"></span>
@@ -411,6 +429,16 @@
         <h3>Your filters</h3>
         <div class="prefs" id="prefBox"></div>
       </div>
+      <div class="box">
+        <h3>Private job focus</h3>
+        <div class="prefs">
+          AI training partner / integration<br/>
+          Area manager · IT support<br/>
+          Software / computer contractor<br/>
+          Near: Pathankot · Kathua · Jammu · Punjab<br/>
+          Alerts: Telegram + email on usable matches
+        </div>
+      </div>
     </aside>
   </div>
 
@@ -425,6 +453,7 @@
     let activeKw = "all";
     let scraping = false;
     let pollTimer = null;
+    let jobsFilter = "usable";
 
     function setStatus(m, err=false) {
       const el = document.getElementById("status");
@@ -435,7 +464,7 @@
     function setBusy(on, label) {
       scraping = on;
       document.getElementById("progress").classList.toggle("on", on);
-      ["btnScrape", "btnScrape2", "btnScrapeSide", "btnReload"].forEach(id => {
+      ["btnScrape", "btnScrape2", "btnScrapeSide", "btnReload", "btnJobsScrape"].forEach(id => {
         const b = document.getElementById(id);
         if (!b) return;
         b.disabled = on;
@@ -482,6 +511,43 @@
           </div>
           <a class="link-btn" href="${esc(r.url||'#')}" target="_blank" rel="noopener">Open bid</a>
         </article>`).join("");
+    }
+
+    function setJobsFilter(mode) {
+      jobsFilter = mode;
+      document.getElementById("jobsUsableBtn").classList.toggle("on", mode === "usable");
+      document.getElementById("jobsAllBtn").classList.toggle("on", mode === "all");
+      if (HUB) renderJobs(HUB);
+    }
+
+    function renderJobs(hub) {
+      const pj = hub.private_jobs || {};
+      const all = pj.all || (hub.by_portal || {}).private_jobs || [];
+      const usable = pj.usable || [];
+      const rows = jobsFilter === "usable" ? usable : all;
+      document.getElementById("jobsMeta").textContent =
+        `${usable.length} usable · ${all.length} scraped · Pathankot / Kathua / Jammu / Punjab`;
+      if (!rows.length) {
+        document.getElementById("jobsList").innerHTML =
+          `<div class="empty">No private jobs yet. Click <b>Refresh jobs</b> or <b>Update listings</b>.</div>`;
+        return;
+      }
+      document.getElementById("jobsList").innerHTML = rows.slice(0, 40).map((j, i) => {
+        const meta = j.meta || {};
+        const score = meta.fit_score ?? "—";
+        const usableTag = meta.usable || (j.tags || []).includes("usable");
+        const why = [...(meta.role_hits || []), ...(meta.near_hits || [])].slice(0, 6);
+        return `
+        <article class="rec-card" style="animation-delay:${i * 0.03}s">
+          <div class="badge ${usableTag ? 'apply' : 'watch'}">${usableTag ? 'USABLE' : 'JOB'} · ${esc(score)}</div>
+          <div>
+            <h3>${esc(j.title)}</h3>
+            <div class="meta-line">${esc([j.location, j.buyer || meta.source, meta.query].filter(Boolean).join(" · "))}</div>
+            <div class="why">${why.map(w => `<span>${esc(w)}</span>`).join("")}</div>
+          </div>
+          <a class="link-btn" href="${esc(j.url||'#')}" target="_blank" rel="noopener">Open job</a>
+        </article>`;
+      }).join("");
     }
 
     function tenderCard(l, i) {
@@ -556,12 +622,14 @@
         HUB = await res.json();
         renderPrefs(HUB.recommendations || {});
         renderApply(HUB.recommendations || {});
+        renderJobs(HUB);
         renderList(HUB.by_portal || {});
         const n = (HUB.recommendations?.apply || []).length;
+        const ju = (HUB.private_jobs?.usable_count ?? (HUB.private_jobs?.usable || []).length) || 0;
         const when = HUB.updated_at ? new Date(HUB.updated_at).toLocaleString("en-IN") : "—";
-        setStatus(`Ready · ${n} preference matches · data updated ${when}`);
+        setStatus(`Ready · ${n} tender matches · ${ju} usable private jobs · data ${when}`);
         const hint = document.getElementById("lastScrapeHint");
-        if (hint) hint.textContent = `Last data update ${when} · auto-scrape 07:00 IST`;
+        if (hint) hint.textContent = `Last data update ${when} · auto 07:00 + jobs 14:00 IST`;
       } catch (e) {
         setStatus("Failed to load: " + e, true);
       }
@@ -617,6 +685,24 @@
       } catch (e) {
         setBusy(false);
         setStatus("Scrape failed to start: " + e, true);
+      }
+    }
+
+    async function scrapeJobsOnly() {
+      if (scraping) return;
+      setBusy(true, "Jobs…");
+      setStatus("Scraping private jobs near Pathankot / Kathua / Jammu / Punjab…");
+      try {
+        const res = await fetch("/api/hub/jobs/scrape", { method: "POST" });
+        const data = await res.json();
+        const n = (data.counts || {}).private_jobs || 0;
+        const alerts = data.alerts || {};
+        setStatus(`Jobs updated · ${n} listings · alerts sent: ${alerts.new || 0}`);
+        await load();
+      } catch (e) {
+        setStatus("Jobs scrape failed: " + e, true);
+      } finally {
+        setBusy(false);
       }
     }
 

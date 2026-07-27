@@ -6,6 +6,7 @@ from typing import Any, Callable
 
 from rich.console import Console
 
+from .jobs import scrape_private_jobs
 from .recommend import build_apply_recommendations
 from .scrapers import (
     scrape_bank_auctions,
@@ -42,6 +43,7 @@ SCRAPERS: dict[str, Callable[..., list[Lead]]] = {
     "gov_auction": scrape_gov_auctions,
     "vehicles": scrape_vehicles,
     "olx": scrape_olx,
+    "private_jobs": scrape_private_jobs,
 }
 
 
@@ -99,6 +101,29 @@ def run_hub_scrape(
             errors["recommendations"] = str(exc)
             console.print(f"  [red]recommendations fail[/red] {exc}")
 
+    alert_info: dict[str, Any] | None = None
+    jobs_cfg = cfg.get("private_jobs") or {}
+    if jobs_cfg.get("alert_on_usable", True) and (
+        portals is None or "private_jobs" in targets
+    ):
+        try:
+            from .alerts import alert_apply_tenders, alert_new_usable_jobs
+            from .jobs import usable_jobs
+
+            job_rows = by_portal.get("private_jobs") or []
+            alert_info = alert_new_usable_jobs(
+                jobs=usable_jobs(job_rows),
+            )
+            if rec and rec.get("apply"):
+                alert_apply_tenders(list(rec.get("apply") or []))
+            console.print(
+                f"[cyan]Alerts[/cyan] new usable jobs={alert_info.get('new', 0)} "
+                f"channels={alert_info.get('channels')}"
+            )
+        except Exception as exc:  # noqa: BLE001
+            errors["alerts"] = str(exc)
+            console.print(f"  [red]alerts fail[/red] {exc}")
+
     return {
         "path": str(path),
         "counts": {k: len(v) for k, v in by_portal.items()},
@@ -111,4 +136,5 @@ def run_hub_scrape(
         }
         if rec
         else None,
+        "alerts": alert_info,
     }

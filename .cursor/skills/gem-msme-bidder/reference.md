@@ -32,9 +32,24 @@
 ## Location ranking (always apply)
 
 1. Pathankot / nearby Punjab  
-2. Rest of Punjab  
-3. Online (no out-of-state office proof required)  
-4. Other states **if eligible** (no office-in-state clause, or office proof exists)
+2. Kathua / Jammu belt (esp. private jobs)  
+3. Rest of Punjab  
+4. Online (no out-of-state office proof required)  
+5. Other states **if eligible** (no office-in-state clause, or office proof exists)
+
+## Pathankot Pulse — private jobs
+
+| Item | Detail |
+|------|--------|
+| UI tab | Private jobs (`#private-jobs`) |
+| Config | `config/hub.yaml` → `private_jobs` |
+| Scraper | `src/gem_agent/hub/jobs.py` (Indeed RSS / Jooble / TimesJobs) |
+| Alerts | `src/gem_agent/hub/alerts.py` → Telegram + Gmail |
+| Schedule | 07:00 full · 14:00 jobs-only (Asia/Kolkata) |
+| API | `GET /api/hub/jobs` · `POST /api/hub/jobs/scrape` · `POST /api/hub/alerts/test` |
+| Live | https://pathankot-pulse-696545445518.asia-south1.run.app |
+
+Usable = role keywords (AI training / IT / contractor…) **and** near-belt location.
 
 ## Shortlist snapshot (Jul 2026 — re-verify live)
 
