@@ -67,12 +67,19 @@
       text-transform: uppercase;
       color: var(--muted);
     }
-    .nav { display: flex; gap: 20px; }
-    .nav a {
+    .nav { display: flex; gap: 4px; }
+    .nav button, .nav a.nav-ext {
       color: var(--ink-2); text-decoration: none; font-size: 0.875rem; font-weight: 500;
-      transition: color 0.15s ease;
+      background: transparent; border: 0; padding: 8px 12px; border-radius: 8px;
+      cursor: pointer; font-family: var(--font); transition: color 0.15s ease, background 0.15s;
     }
-    .nav a:hover { color: var(--accent); }
+    .nav button:hover, .nav a.nav-ext:hover { color: var(--accent); background: var(--accent-soft); }
+    .nav button.on {
+      color: var(--accent); background: var(--accent-soft); font-weight: 600;
+    }
+    .view { display: none; animation: rise 0.3s ease both; }
+    .view.on { display: block; }
+    .view-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .actions { display: flex; gap: 8px; }
     button, .btn {
       font-family: var(--font);
@@ -118,7 +125,9 @@
     }
     @media (max-width: 960px) {
       .wrap { grid-template-columns: 1fr; }
-      .nav { display: none; }
+      .nav { display: flex; flex-wrap: wrap; gap: 2px; max-width: 100%; }
+      .nav button, .nav a.nav-ext { font-size: 0.78rem; padding: 7px 9px; }
+      .topbar-inner { flex-wrap: wrap; }
     }
 
     .eyebrow {
@@ -342,12 +351,12 @@
         <span class="brand-mark">Pathankot Pulse</span>
         <span class="brand-sub">Tender intel</span>
       </a>
-      <nav class="nav">
-        <a href="#recommended">For you</a>
-        <a href="#private-jobs">Private jobs</a>
-        <a href="#listings">Active tenders</a>
-        <a href="#auctions">Auctions</a>
-        <a href="/gem">GeM tools</a>
+      <nav class="nav" id="mainNav">
+        <button type="button" class="on" data-tab="for-you" onclick="showTab('for-you')">For you</button>
+        <button type="button" data-tab="jobs" onclick="showTab('jobs')">Private jobs</button>
+        <button type="button" data-tab="tenders" onclick="showTab('tenders')">Active tenders</button>
+        <button type="button" data-tab="auctions" onclick="showTab('auctions')">Auctions</button>
+        <a class="nav-ext" href="/gem">GeM tools</a>
       </nav>
       <div class="actions">
         <button class="btn-ghost" id="btnReload" type="button" onclick="load()">Reload view</button>
@@ -361,69 +370,81 @@
   <div class="wrap">
     <main>
       <div class="eyebrow">Pathankot · Punjab · 145023</div>
-      <h1>Active tenders</h1>
-      <p class="lede">
-        Matched to your MSME profile — we scrape GeM, CPPP, eProc, IREPS, MSTC and more,
-        then surface only real listings. No search shortcuts.
+      <h1 id="pageTitle">For you</h1>
+      <p class="lede" id="pageLede">
+        Preference-matched GeM and portal tenders for JR Consulting — no scrolling through other tabs.
       </p>
 
-      <div class="toolbar">
-        <div class="seg" id="kwSeg"></div>
-        <button class="btn-ghost" id="btnScrape2" type="button" onclick="scrapeNew()" style="margin-left:auto">
-          Scrape new tenders
-        </button>
-      </div>
       <div class="progress-bar" id="progress"><i></i></div>
       <div class="status" id="status"></div>
 
-      <section class="panel" id="recommended">
-        <div class="panel-h">
-          <h2>Recommended for you</h2>
-          <span>JR Consulting preferences</span>
+      <!-- One tab panel at a time -->
+      <section class="view on" id="view-for-you" data-view="for-you">
+        <div class="panel" style="margin:0">
+          <div class="panel-h">
+            <h2>Recommended for you</h2>
+            <span>JR Consulting preferences</span>
+          </div>
+          <div class="rec" id="applyList"></div>
         </div>
-        <div class="rec" id="applyList"></div>
       </section>
 
-      <section class="panel" id="private-jobs">
-        <div class="panel-h">
-          <h2>Private jobs</h2>
-          <span id="jobsMeta">AI training · IT support · contractor · near Kathua / Jammu / Punjab</span>
-        </div>
-        <div class="toolbar" style="margin-bottom:12px">
-          <div class="seg" id="jobsSeg">
-            <button type="button" class="on" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
-            <button type="button" id="jobsAllBtn" onclick="setJobsFilter('all')">All scraped</button>
+      <section class="view" id="view-jobs" data-view="jobs">
+        <div class="panel" style="margin:0">
+          <div class="panel-h">
+            <h2>Private jobs</h2>
+            <span id="jobsMeta">AI training · IT support · contractor · near Kathua / Jammu / Punjab</span>
           </div>
-          <button class="btn-ghost" type="button" onclick="scrapeJobsOnly()" id="btnJobsScrape" style="margin-left:auto">
-            Refresh jobs
+          <div class="view-toolbar">
+            <div class="seg" id="jobsSeg">
+              <button type="button" class="on" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
+              <button type="button" id="jobsAllBtn" onclick="setJobsFilter('all')">All scraped</button>
+            </div>
+            <button class="btn-ghost" type="button" onclick="scrapeJobsOnly()" id="btnJobsScrape" style="margin-left:auto">
+              Refresh jobs
+            </button>
+          </div>
+          <div class="rec" id="jobsList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-tenders" data-view="tenders">
+        <div class="view-toolbar">
+          <div class="seg" id="kwSeg"></div>
+          <button class="btn-ghost" id="btnScrape2" type="button" onclick="scrapeNew()" style="margin-left:auto">
+            Scrape new tenders
           </button>
         </div>
-        <div class="rec" id="jobsList"></div>
+        <div class="list-h">
+          <h2>Listings</h2>
+          <span class="count" id="totalCount"></span>
+        </div>
+        <div id="tenderList"></div>
       </section>
 
-      <div class="list-h" id="listings">
-        <h2>Listings</h2>
-        <span class="count" id="totalCount"></span>
-      </div>
-      <div id="tenderList"></div>
-      <div id="auctionList"></div>
+      <section class="view" id="view-auctions" data-view="auctions">
+        <div class="list-h">
+          <h2>Auctions &amp; nearby property</h2>
+          <span class="count" id="auctionCount"></span>
+        </div>
+        <div id="auctionList"></div>
+      </section>
     </main>
 
     <aside class="side">
       <div class="box cta-box">
         <h3>Update now</h3>
-        <p>Pull fresh tenders from GeM, CPPP, TendersPlus, Punjab eProc, and auctions — then re-match your preferences.</p>
+        <p>Pull fresh tenders and private jobs — then re-match your preferences.</p>
         <button type="button" id="btnScrapeSide" onclick="scrapeNew()">Scrape &amp; update</button>
         <p style="margin:10px 0 0;font-size:0.72rem;opacity:0.75" id="lastScrapeHint">Auto-scrape daily at 07:00 IST</p>
       </div>
       <div class="box">
-        <h3>Sources</h3>
-        <a href="#listings">GeM</a>
-        <a href="#listings">CPPP / eprocure</a>
-        <a href="#listings">IREPS · MSTC · nProcure</a>
-        <a href="#listings">Punjab e-Procurement</a>
-        <a href="#auctions">Bank &amp; gov auctions</a>
-        <a href="#auctions">OLX Pathankot</a>
+        <h3>Jump to</h3>
+        <a href="#" onclick="return showTab('tenders')">GeM · CPPP · eProc</a>
+        <a href="#" onclick="return showTab('tenders')">Punjab e-Procurement</a>
+        <a href="#" onclick="return showTab('jobs')">Private jobs</a>
+        <a href="#" onclick="return showTab('auctions')">Bank &amp; gov auctions</a>
+        <a href="#" onclick="return showTab('for-you')">Recommended for you</a>
       </div>
       <div class="box">
         <h3>Your filters</h3>
@@ -454,6 +475,45 @@
     let scraping = false;
     let pollTimer = null;
     let jobsFilter = "usable";
+    let activeTab = "for-you";
+
+    const TAB_META = {
+      "for-you": {
+        title: "For you",
+        lede: "Preference-matched GeM and portal tenders for JR Consulting — APPLY / REVIEW / WATCH only.",
+      },
+      jobs: {
+        title: "Private jobs",
+        lede: "AI training partner, IT support, area manager, and software/computer contractor roles near Pathankot, Kathua, Jammu, and Punjab.",
+      },
+      tenders: {
+        title: "Active tenders",
+        lede: "Real listings from GeM, CPPP, eProc, IREPS, MSTC and Punjab e-Procurement — no search shortcuts.",
+      },
+      auctions: {
+        title: "Auctions",
+        lede: "Bank and government property / vehicle auctions and nearby classifieds.",
+      },
+    };
+
+    function showTab(name) {
+      if (!TAB_META[name]) return false;
+      activeTab = name;
+      document.querySelectorAll(".view").forEach(el => {
+        el.classList.toggle("on", el.dataset.view === name);
+      });
+      document.querySelectorAll("#mainNav button[data-tab]").forEach(btn => {
+        btn.classList.toggle("on", btn.dataset.tab === name);
+      });
+      document.getElementById("pageTitle").textContent = TAB_META[name].title;
+      document.getElementById("pageLede").textContent = TAB_META[name].lede;
+      // Stay at top — never scroll to a stacked section
+      window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+      try {
+        history.replaceState(null, "", "#" + name);
+      } catch (_) {}
+      return false;
+    }
 
     function setStatus(m, err=false) {
       const el = document.getElementById("status");
@@ -605,9 +665,10 @@
         : `<div class="empty">No tenders yet. Click <b>Update listings</b> to scrape portals.</div>`;
 
       const auctions = [...(by.bank_auction||[]), ...(by.gov_auction||[]), ...(by.vehicles||[]), ...(by.olx||[])];
-      document.getElementById("auctionList").innerHTML =
-        `<div class="list-h" id="auctions"><h2>Auctions &amp; nearby property</h2><span class="count">${auctions.length}</span></div>` +
-        (auctions.length ? auctions.slice(0, 40).map(tenderCard).join("") : `<div class="empty">No auction listings yet.</div>`);
+      document.getElementById("auctionCount").textContent = `${auctions.length} results`;
+      document.getElementById("auctionList").innerHTML = auctions.length
+        ? auctions.slice(0, 40).map(tenderCard).join("")
+        : `<div class="empty">No auction listings yet.</div>`;
     }
 
     function setKw(k) {
@@ -716,6 +777,9 @@
     })();
 
     load();
+    // Open tab from hash if present (no scroll)
+    const hashTab = (location.hash || "").replace("#", "");
+    showTab(TAB_META[hashTab] ? hashTab : "for-you");
   </script>
 </body>
 </html>
