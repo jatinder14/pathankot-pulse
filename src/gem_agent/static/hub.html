@@ -90,6 +90,27 @@
     .btn-primary:hover { background: var(--accent-2); }
     .btn-ghost { background: #fff; color: var(--ink-2); border-color: var(--line); }
     .btn-ghost:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .btn-busy { position: relative; padding-left: 34px; }
+    .btn-busy::before {
+      content: ""; position: absolute; left: 12px; top: 50%; width: 12px; height: 12px;
+      margin-top: -6px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    .btn-ghost.btn-busy::before { border-color: rgba(15,76,129,0.25); border-top-color: var(--accent); }
+    .progress-bar {
+      height: 3px; background: #e2e8f0; border-radius: 99px; overflow: hidden;
+      margin: -6px 0 14px; opacity: 0; transition: opacity 0.2s;
+    }
+    .progress-bar.on { opacity: 1; }
+    .progress-bar > i {
+      display: block; height: 100%; width: 35%; background: var(--accent);
+      border-radius: 99px; animation: slide 1.1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slide {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
 
     .wrap {
       max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px;
@@ -328,8 +349,10 @@
         <a href="/gem">GeM tools</a>
       </nav>
       <div class="actions">
-        <button class="btn-ghost" type="button" onclick="load()">Reload</button>
-        <button class="btn-primary" id="btn" type="button" onclick="refreshAll()">Refresh &amp; match</button>
+        <button class="btn-ghost" id="btnReload" type="button" onclick="load()">Reload view</button>
+        <button class="btn-primary" id="btnScrape" type="button" onclick="scrapeNew()" title="Scrape portals and re-rank matches">
+          Update listings
+        </button>
       </div>
     </div>
   </header>
@@ -345,7 +368,11 @@
 
       <div class="toolbar">
         <div class="seg" id="kwSeg"></div>
+        <button class="btn-ghost" id="btnScrape2" type="button" onclick="scrapeNew()" style="margin-left:auto">
+          Scrape new tenders
+        </button>
       </div>
+      <div class="progress-bar" id="progress"><i></i></div>
       <div class="status" id="status"></div>
 
       <section class="panel" id="recommended">
@@ -366,9 +393,10 @@
 
     <aside class="side">
       <div class="box cta-box">
-        <h3>Daily pulse</h3>
-        <p>Scheduler runs at 07:00 IST. Refresh now to re-scan portals and re-rank matches.</p>
-        <button type="button" onclick="refreshAll()">Run scrape</button>
+        <h3>Update now</h3>
+        <p>Pull fresh tenders from GeM, CPPP, TendersPlus, Punjab eProc, and auctions — then re-match your preferences.</p>
+        <button type="button" id="btnScrapeSide" onclick="scrapeNew()">Scrape &amp; update</button>
+        <p style="margin:10px 0 0;font-size:0.72rem;opacity:0.75" id="lastScrapeHint">Auto-scrape daily at 07:00 IST</p>
       </div>
       <div class="box">
         <h3>Sources</h3>
@@ -395,11 +423,30 @@
     const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     let HUB = null;
     let activeKw = "all";
+    let scraping = false;
+    let pollTimer = null;
 
     function setStatus(m, err=false) {
       const el = document.getElementById("status");
       el.textContent = m || "";
       el.className = "status" + (err ? " err" : "");
+    }
+
+    function setBusy(on, label) {
+      scraping = on;
+      document.getElementById("progress").classList.toggle("on", on);
+      ["btnScrape", "btnScrape2", "btnScrapeSide", "btnReload"].forEach(id => {
+        const b = document.getElementById(id);
+        if (!b) return;
+        b.disabled = on;
+        b.classList.toggle("btn-busy", on && id !== "btnReload");
+      });
+      const primary = document.getElementById("btnScrape");
+      if (primary) primary.textContent = on ? (label || "Scraping…") : "Update listings";
+      const side = document.getElementById("btnScrapeSide");
+      if (side) side.textContent = on ? (label || "Scraping…") : "Scrape & update";
+      const mid = document.getElementById("btnScrape2");
+      if (mid) mid.textContent = on ? (label || "Scraping…") : "Scrape new tenders";
     }
 
     function allTenders(by) {
@@ -422,7 +469,7 @@
       const rows = [...(rec.apply || []), ...(rec.watch || []).slice(0, 4)];
       if (!rows.length) {
         document.getElementById("applyList").innerHTML =
-          `<div class="empty">No preference matches yet. Run <b>Refresh &amp; match</b>.</div>`;
+          `<div class="empty">No preference matches yet. Click <b>Update listings</b> to scrape and match.</div>`;
         return;
       }
       document.getElementById("applyList").innerHTML = rows.map((r, i) => `
@@ -489,7 +536,7 @@
         : "";
       document.getElementById("tenderList").innerHTML = shown.length
         ? shown.map(tenderCard).join("") + more
-        : `<div class="empty">No tenders yet. Click <b>Refresh &amp; match</b>.</div>`;
+        : `<div class="empty">No tenders yet. Click <b>Update listings</b> to scrape portals.</div>`;
 
       const auctions = [...(by.bank_auction||[]), ...(by.gov_auction||[]), ...(by.vehicles||[]), ...(by.olx||[])];
       document.getElementById("auctionList").innerHTML =
@@ -511,27 +558,76 @@
         renderApply(HUB.recommendations || {});
         renderList(HUB.by_portal || {});
         const n = (HUB.recommendations?.apply || []).length;
-        setStatus(`Ready · ${n} preference matches · updated ${HUB.updated_at ? new Date(HUB.updated_at).toLocaleString("en-IN") : "—"}`);
+        const when = HUB.updated_at ? new Date(HUB.updated_at).toLocaleString("en-IN") : "—";
+        setStatus(`Ready · ${n} preference matches · data updated ${when}`);
+        const hint = document.getElementById("lastScrapeHint");
+        if (hint) hint.textContent = `Last data update ${when} · auto-scrape 07:00 IST`;
       } catch (e) {
         setStatus("Failed to load: " + e, true);
       }
     }
 
-    async function refreshAll() {
-      const btn = document.getElementById("btn");
-      btn.disabled = true;
-      setStatus("Scanning portals and matching your preferences…");
+    async function pollScrape() {
+      try {
+        const res = await fetch("/api/hub/scrape/status");
+        const job = await res.json();
+        const st = job.status || "idle";
+        if (st === "running") {
+          setBusy(true, "Scraping…");
+          setStatus(job.message || "Scanning portals for new tenders…");
+          pollTimer = setTimeout(pollScrape, 1500);
+          return;
+        }
+        if (st === "done") {
+          setBusy(false);
+          const counts = (job.result && job.result.counts) || {};
+          const parts = Object.entries(counts).map(([k, v]) => `${k}:${v}`).join(" · ");
+          setStatus(job.message || `Scrape complete · ${parts}`);
+          await load();
+          return;
+        }
+        if (st === "error") {
+          setBusy(false);
+          setStatus(job.message || "Scrape failed", true);
+          return;
+        }
+        setBusy(false);
+      } catch (e) {
+        setBusy(false);
+        setStatus("Could not check scrape status: " + e, true);
+      }
+    }
+
+    async function scrapeNew() {
+      if (scraping) return;
+      clearTimeout(pollTimer);
+      setBusy(true, "Scraping…");
+      setStatus("Starting scrape — GeM, CPPP, TendersPlus, auctions…");
       try {
         const res = await fetch("/api/hub/scrape", { method: "POST" });
         const data = await res.json();
-        setStatus(`Done · ${JSON.stringify(data.counts || {})}`);
-        await load();
+        if (!data.started && data.status === "running") {
+          setStatus(data.message || "Scrape already running — waiting…");
+        } else if (data.ok === false && !data.started) {
+          setStatus(data.message || "Could not start scrape", true);
+          setBusy(false);
+          return;
+        }
+        pollTimer = setTimeout(pollScrape, 800);
       } catch (e) {
-        setStatus("Refresh failed: " + e, true);
-      } finally {
-        btn.disabled = false;
+        setBusy(false);
+        setStatus("Scrape failed to start: " + e, true);
       }
     }
+
+    // Resume UI if a scrape is mid-flight after page reload
+    (async function resumeIfRunning() {
+      try {
+        const res = await fetch("/api/hub/scrape/status");
+        const job = await res.json();
+        if (job.status === "running") pollScrape();
+      } catch (_) {}
+    })();
 
     load();
   </script>

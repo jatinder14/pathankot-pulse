@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import threading
+import time
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
@@ -11,6 +15,57 @@ from .approval import ApprovalGate
 from .pipeline import TenderPipeline
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+
+# In-process scrape job (one at a time) so the UI can poll progress.
+_scrape_lock = threading.Lock()
+_scrape_job: dict[str, Any] = {
+    "status": "idle",
+    "message": "No scrape running",
+    "started_at": None,
+    "finished_at": None,
+    "result": None,
+    "error": None,
+}
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _run_scrape_job(portals: list[str] | None) -> None:
+    global _scrape_job
+    try:
+        from .hub import run_hub_scrape
+
+        _scrape_job["message"] = "Scanning portals…"
+        result = run_hub_scrape(portals=portals, fit_pages=1, fit_max_docs=20)
+        counts = result.get("counts") or {}
+        total = sum(int(v) for v in counts.values())
+        rec = result.get("recommendations") or {}
+        _scrape_job.update(
+            {
+                "status": "done",
+                "message": f"Updated {total:,} listings"
+                + (f" · {rec.get('apply', 0)} apply matches" if rec else ""),
+                "finished_at": _utc_now(),
+                "result": result,
+                "error": None,
+            }
+        )
+    except Exception as exc:  # noqa: BLE001
+        _scrape_job.update(
+            {
+                "status": "error",
+                "message": f"Scrape failed: {exc}",
+                "finished_at": _utc_now(),
+                "error": str(exc),
+            }
+        )
+    finally:
+        try:
+            _scrape_lock.release()
+        except RuntimeError:
+            pass
 
 
 @asynccontextmanager
@@ -108,12 +163,56 @@ def api_hub_recommendations_run(pages: int = 2, max_docs: int = 30):
     return build_apply_recommendations(pages=pages, max_docs=max_docs)
 
 
+@app.get("/api/hub/scrape/status")
+def api_hub_scrape_status():
+    """Poll current / last scrape job (used by Update listings button)."""
+    return dict(_scrape_job)
+
+
 @app.post("/api/hub/scrape")
-def api_hub_scrape(portals: str | None = Query(None, description="Comma-separated portal ids")):
+def api_hub_scrape(
+    portals: str | None = Query(None, description="Comma-separated portal ids"),
+    sync: bool = Query(False, description="If true, block until scrape finishes"),
+):
+    """Start a portal scrape + preference re-match.
+
+    Default is async (returns immediately; poll ``/api/hub/scrape/status``).
+    Pass ``sync=true`` for CLI / scripts.
+    """
     from .hub import run_hub_scrape
 
-    selected = [p.strip() for p in portals.split(",")] if portals else None
-    return run_hub_scrape(portals=selected, fit_pages=1, fit_max_docs=20)
+    selected = [p.strip() for p in portals.split(",") if p.strip()] if portals else None
+
+    if sync:
+        return run_hub_scrape(portals=selected, fit_pages=1, fit_max_docs=20)
+
+    if not _scrape_lock.acquire(blocking=False):
+        return {
+            "ok": False,
+            "started": False,
+            "status": _scrape_job.get("status"),
+            "message": _scrape_job.get("message") or "Scrape already running",
+        }
+
+    _scrape_job.update(
+        {
+            "status": "running",
+            "message": "Starting scrape across GeM, CPPP, TendersPlus, auctions…",
+            "started_at": _utc_now(),
+            "finished_at": None,
+            "result": None,
+            "error": None,
+        }
+    )
+    threading.Thread(target=_run_scrape_job, args=(selected,), daemon=True).start()
+    # Tiny yield so status is readable immediately
+    time.sleep(0.05)
+    return {
+        "ok": True,
+        "started": True,
+        "status": "running",
+        "message": _scrape_job["message"],
+    }
 
 
 @app.get("/gem", response_class=HTMLResponse)
