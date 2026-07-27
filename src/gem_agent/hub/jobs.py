@@ -971,13 +971,15 @@ def _scrape_retail_adhoc(client: httpx.Client) -> list[Lead]:
                     )
                 ):
                     continue
-                # Skip bare board index pages with no role signal
-                blob = f"{title} {q}".lower()
+                blob = f"{title} {href} {q}".lower()
+                # Must be Pathankot-relevant (skip Pune/Delhi brand spam)
+                if "pathankot" not in blob and "punjab" not in blob and "145023" not in blob:
+                    continue
                 is_adhoc = any(t in blob for t in ADHOC_TOKENS)
                 is_store = any(t in blob for t in STORE_OPEN_TOKENS) or any(
                     b in blob for b in _retail_brands()
                 )
-                if not (is_adhoc or is_store or "pathankot" in blob):
+                if not (is_adhoc or is_store):
                     continue
                 src = "adhoc" if is_adhoc and not is_store else ("retail" if is_store else "web")
                 brand = next((b.title() for b in _retail_brands() if b in blob), "")
