@@ -97,16 +97,21 @@ Product surface: **Private jobs** tab in Pathankot Pulse (`/` UI).
 - Area manager (IT) · IT support / technician · technical support
 - Software / computer contractor / freelance consultant near home belt
 
-**Scrape sources (local first):**
+**Scrape sources (Pathankot first):**
 
-- `foodtechnetwork.in` — Kandhari, Varun, beverage plant roles
-- `apna.co` — Pathankot / Kathua / Jammu verified vacancies
-- `jobsfood.tech` — Pioneer distillery / food manufacturing
-- Remote boards secondary (Remotive, Jobicy)
+- `apna.co` Pathankot live board
+- Varun Beverages Pathankot · Pioneer Pathankot · Kandhari Kathua (FoodTechNetwork)
+- `jobsfood.tech` Pathankot distillery
+- India Remotive secondary
 
-**Geography:** Pathankot, Kathua, Jammu, Gurdaspur, wider Punjab (+ remote/WFH
-when role fits).
+**Geography (rank order):**
 
+1. **Pathankot / Sujanpur / 145023** — home first
+2. Gurdaspur / Nurpur / Kangra · Kathua / Samba
+3. Jammu · rest of Punjab
+4. India remote only if active + relevant
+
+**Active only:** drop posts older than `max_age_days` (**45**). Apna Pathankot = live.
 **Daily automation:**
 
 - Full hub scrape **07:00 IST** (tenders + private jobs + alerts)

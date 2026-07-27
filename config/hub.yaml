@@ -21,53 +21,58 @@ owner:
   brand: Pathankot Pulse
   tagline: Tenders · private jobs · bank auctions — Pathankot / Kathua / Jammu
 
-# Private-sector jobs — local factories/brands + remote IT/training
+# Private-sector jobs — Pathankot-first · active openings only
 private_jobs:
   enabled: true
   alert_on_usable: true
-  # Brands / factories near Pathankot · Kathua · Jammu (hit their hiring pages)
+  # Drop posts older than this many days (foodtech / remotive dates)
+  max_age_days: 45
+  # Pathankot home first; nearby belt second
+  home_city: Pathankot
   local_employers:
-    - name: Kandhari Beverages (Coca-Cola FBO)
-      location: Kathua, J&K · near Pathankot
-      search:
-        - Kandhari Kathua
-        - Kandhari Beverages Coca Cola
-        - Coca Cola bottling Kathua
     - name: Varun Beverages (PepsiCo franchise)
       location: Pathankot, Punjab
       search:
         - Varun Beverages Pathankot
-        - Varun Beverages
+        - Varun Beverages Ltd Pathankot plant
     - name: Pioneer Industries
       location: Pathankot, Punjab · distillery / starch
       search:
         - Pioneer Industries Pathankot
-    - name: PDIL (Projects & Development India Ltd)
-      location: PSU · contract sites pan-India
+        - Pioneer Pathankot hiring
+    - name: Kandhari Beverages (Coca-Cola FBO)
+      location: Kathua · near Pathankot
       search:
-        - PDIL hiring contract
+        - Kandhari Kathua Pathankot
+        - Kandhari Beverages Coca Cola
+    - name: PDIL (Projects & Development India Ltd)
+      location: PSU · prefer Pathankot / Punjab posting
+      search:
+        - PDIL hiring Pathankot
+        - PDIL contract Punjab
   apna_cities:
     - pathankot
     - kathua
     - jammu
   locations:
     - Pathankot, Punjab
+    - Sujanpur, Pathankot
+    - Gurdaspur, Punjab
     - Kathua, Jammu and Kashmir
     - Jammu, Jammu and Kashmir
-    - Gurdaspur, Punjab
-    - Punjab
   queries:
-    - factory supervisor Pathankot
-    - IT support factory Pathankot
+    - jobs in Pathankot
+    - factory jobs Pathankot
+    - IT support Pathankot
     - area manager Pathankot
-    - AI training partner
-    - digital literacy trainer
-    - computer instructor
-    - IT technician Kathua
-    - software engineer Jammu
-    - maintenance engineer beverage
-    - production executive Kathua
-
+    - computer operator Pathankot
+    - maintenance engineer Pathankot
+    - Varun Beverages Pathankot
+    - Pioneer Industries Pathankot
+    - Kandhari Beverages Kathua
+    - digital literacy trainer Pathankot
+    - AI trainer Pathankot
+    - production executive Pathankot
 portals:
   - id: tendersplus
     name: TendersPlus (GeM · CPPP · eProc · IREPS · MSTC…)

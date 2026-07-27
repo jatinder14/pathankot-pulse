@@ -117,7 +117,7 @@ def health():
 
 @app.get("/api/hub")
 def api_hub():
-    from .hub.jobs import local_factory_jobs, usable_jobs
+    from .hub.jobs import local_factory_jobs, pathankot_jobs, usable_jobs
     from .hub.recommend import load_recommendations
     from .hub.scheduler import scheduler_status
     from .hub.store import load_hub_config, load_leads
@@ -153,9 +153,11 @@ def api_hub():
         "all": jobs,
         "usable": usable_jobs(jobs),
         "local_factory": local_factory_jobs(jobs),
+        "pathankot": pathankot_jobs(jobs),
         "count": len(jobs),
         "usable_count": len(usable_jobs(jobs)),
         "local_factory_count": len(local_factory_jobs(jobs)),
+        "pathankot_count": len(pathankot_jobs(jobs)),
     }
     return data
 
