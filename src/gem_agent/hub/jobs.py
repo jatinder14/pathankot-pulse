@@ -879,41 +879,100 @@ def _dedupe(leads: list[Lead]) -> list[Lead]:
     return out
 
 
-def _scrape_retail_adhoc(client: httpx.Client) -> list[Lead]:
-    """Ad-hoc specialist + brands opening stores in Pathankot / nearby."""
+def _scrape_apna_retail(client: httpx.Client) -> list[Lead]:
+    """Apna retail / store / part-time boards for Pathankot."""
     leads: list[Lead] = []
-    brand_qs = [
-        f"{b} Pathankot hiring" for b in _retail_brands()[:10]
-    ] + [
+    slugs = [
+        "retail_operations-jobs-in-pathankot",
+        "store-jobs-in-pathankot",
+        "part_time-jobs-in-pathankot",
+        "full_time-jobs-in-pathankot",
+    ]
+    for slug in slugs:
+        try:
+            r = client.get(f"https://apna.co/jobs/{slug}")
+            if r.status_code >= 400:
+                continue
+            soup = BeautifulSoup(r.text[:700_000], "html.parser")
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
+                if not href.startswith("https://apna.co/job/"):
+                    continue
+                text = a.get_text(" ", strip=True)
+                if len(text) < 20:
+                    continue
+                text_l = text.lower()
+                if "pathankot" not in text_l and "/job/pathankot/" not in href.lower():
+                    continue
+                # Skip pure delivery unless store/IT/training angle
+                if "delivery" in text_l and not any(
+                    t in text_l for t in ("store", "retail", "computer", "it ", "trainer", "manager")
+                ):
+                    continue
+                is_adhoc = any(t in text_l for t in ADHOC_TOKENS) or "part time" in text_l or "part_time" in slug
+                is_store = any(t in text_l for t in STORE_OPEN_TOKENS) or "retail" in slug or "store" in slug
+                lead = _lead(
+                    title=text.split("₹")[0].strip()[:160],
+                    url=href,
+                    location="Pathankot, Punjab",
+                    summary=text[:360],
+                    source="adhoc" if is_adhoc else ("retail" if is_store else "apna"),
+                    query=slug,
+                    employer="",
+                    posted_at=datetime.now(timezone.utc),
+                )
+                if lead:
+                    leads.append(lead)
+        except httpx.HTTPError:
+            continue
+    return leads
+
+
+def _scrape_retail_adhoc(client: httpx.Client) -> list[Lead]:
+    """Ad-hoc specialist + brands opening stores — Brave search (DDG often blocked)."""
+    leads: list[Lead] = []
+    brand_qs = [f"{b} Pathankot hiring" for b in _retail_brands()[:8]] + [
         "new store opening Pathankot jobs",
+        "store manager Pathankot hiring",
         "showroom opening Pathankot",
         "franchise Pathankot hiring",
-        "store manager Pathankot",
-        "adhoc specialist Pathankot IT",
-        "freelance IT consultant Pathankot",
+        "adhoc IT specialist Pathankot",
+        "freelance computer consultant Pathankot",
         "visiting faculty computer Pathankot",
-        "POS training Pathankot store",
-        "CCTV installation Pathankot contract",
+        "POS training Pathankot",
         "part time computer trainer Pathankot",
+        "CCTV installation contract Pathankot",
     ]
-    for q in brand_qs[:18]:
-        url = f"https://html.duckduckgo.com/html/?q={quote_plus(q + ' 2026')}"
+    for q in brand_qs[:16]:
+        url = f"https://search.brave.com/search?q={quote_plus(q + ' 2026')}"
         try:
             r = client.get(url)
             if r.status_code >= 400:
                 continue
-            soup = BeautifulSoup(r.text, "html.parser")
-            for a in soup.select("a.result__a")[:8]:
+            soup = BeautifulSoup(r.text[:500_000], "html.parser")
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
                 title = a.get_text(" ", strip=True)
-                href = _unwrap_ddg(a.get("href") or "")
-                if not href.startswith("http"):
+                if len(title) < 18 or not href.startswith("http"):
                     continue
-                snippet_el = a.find_parent("div", class_="result") or a.parent
-                snippet = ""
-                if snippet_el:
-                    sn = snippet_el.select_one(".result__snippet")
-                    snippet = sn.get_text(" ", strip=True) if sn else ""
-                blob = f"{title} {snippet} {q}".lower()
+                host = urlparse(href).netloc.lower()
+                if not any(
+                    h in host
+                    for h in (
+                        "naukri.",
+                        "indeed.",
+                        "apna.co",
+                        "linkedin.",
+                        "foundit.",
+                        "shine.",
+                        "quikr.",
+                        "simplyhired.",
+                        "timesjobs.",
+                    )
+                ):
+                    continue
+                # Skip bare board index pages with no role signal
+                blob = f"{title} {q}".lower()
                 is_adhoc = any(t in blob for t in ADHOC_TOKENS)
                 is_store = any(t in blob for t in STORE_OPEN_TOKENS) or any(
                     b in blob for b in _retail_brands()
@@ -923,20 +982,39 @@ def _scrape_retail_adhoc(client: httpx.Client) -> list[Lead]:
                 src = "adhoc" if is_adhoc and not is_store else ("retail" if is_store else "web")
                 brand = next((b.title() for b in _retail_brands() if b in blob), "")
                 lead = _lead(
-                    title=title,
-                    url=href,
+                    title=title[:160],
+                    url=href.split("&")[0],
                     location="Pathankot, Punjab",
-                    summary=snippet or f"Side hustle · {q}",
+                    summary=f"Side hustle search · {q}",
                     source=src,
                     query=q,
                     employer=brand,
-                    posted_at=None,
+                    posted_at=datetime.now(timezone.utc),
                     require_active=False,
                 )
                 if lead:
                     leads.append(lead)
         except httpx.HTTPError:
             continue
+
+    # Explicit brand hunt cards → Naukri deep links (live search for openings)
+    for brand in _retail_brands()[:12]:
+        slug = brand.replace(" ", "-")
+        lead = _lead(
+            title=f"{brand.title()} — Pathankot / Punjab openings (live search)",
+            url=f"https://www.naukri.com/{slug}-jobs-in-pathankot",
+            location="Pathankot, Punjab",
+            summary=(
+                "Brand expansion watch · open live Naukri for current vacancies. "
+                "Pitch JR Consulting: store IT setup, POS training, digital literacy for staff."
+            ),
+            source="retail",
+            query=f"{brand} pathankot",
+            employer=brand.title(),
+            posted_at=datetime.now(timezone.utc),
+        )
+        if lead:
+            leads.append(lead)
     return leads
 
 
@@ -945,6 +1023,7 @@ def scrape_private_jobs() -> list[Lead]:
     leads: list[Lead] = []
     with _client() as client:
         leads.extend(_scrape_apna_local(client))
+        leads.extend(_scrape_apna_retail(client))
         leads.extend(_scrape_retail_adhoc(client))
         leads.extend(_scrape_foodtechnetwork(client))
         leads.extend(_scrape_jobsfood_local(client))
