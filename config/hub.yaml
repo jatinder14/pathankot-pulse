@@ -21,14 +21,16 @@ owner:
   brand: Pathankot Pulse
   tagline: Tenders · private jobs · bank auctions — Pathankot / Kathua / Jammu
 
-# Private-sector jobs — Pathankot-first · active openings only
+# Private-sector jobs — Pathankot-first · active · ad-hoc side income
 private_jobs:
   enabled: true
   alert_on_usable: true
-  # Drop posts older than this many days (foodtech / remotive dates)
   max_age_days: 45
-  # Pathankot home first; nearby belt second
   home_city: Pathankot
+  # Stack income: ad-hoc specialist / store-launch / freelance alongside GeM
+  side_hustle:
+    enabled: true
+    prefer_adhoc: true
   local_employers:
     - name: Varun Beverages (PepsiCo franchise)
       location: Pathankot, Punjab
@@ -50,6 +52,24 @@ private_jobs:
       search:
         - PDIL hiring Pathankot
         - PDIL contract Punjab
+  retail_brands:
+    - Reliance Smart
+    - Vishal Mega Mart
+    - More Retail
+    - Trends
+    - Croma
+    - Vijay Sales
+    - Decathlon
+    - Pantaloons
+    - Domino's
+    - McDonald's
+    - Burger King
+    - Cafe Coffee Day
+    - Starbucks
+    - Max Fashion
+    - Bata
+    - Lenskart
+    - Jockey
   apna_cities:
     - pathankot
     - kathua
@@ -61,18 +81,31 @@ private_jobs:
     - Kathua, Jammu and Kashmir
     - Jammu, Jammu and Kashmir
   queries:
-    - jobs in Pathankot
-    - factory jobs Pathankot
-    - IT support Pathankot
-    - area manager Pathankot
-    - computer operator Pathankot
-    - maintenance engineer Pathankot
-    - Varun Beverages Pathankot
-    - Pioneer Industries Pathankot
-    - Kandhari Beverages Kathua
+    - adhoc specialist Pathankot
+    - freelance consultant Pathankot
+    - visiting faculty Pathankot
+    - part time IT Pathankot
+    - contract basis computer Pathankot
+    - store IT setup Pathankot
+    - POS training Pathankot
     - digital literacy trainer Pathankot
     - AI trainer Pathankot
-    - production executive Pathankot
+    - CCTV installation Pathankot
+    - networking specialist Pathankot
+    - new store opening Pathankot hiring
+    - store manager Pathankot
+    - showroom opening Pathankot
+    - franchise Pathankot Punjab
+    - retail store Pathankot
+    - Reliance Smart Pathankot jobs
+    - Vishal Mega Mart Pathankot
+    - Domino's Pathankot hiring
+    - Croma Pathankot jobs
+    - jobs in Pathankot
+    - IT support Pathankot
+    - area manager Pathankot
+    - Varun Beverages Pathankot
+    - Pioneer Industries Pathankot
 portals:
   - id: tendersplus
     name: TendersPlus (GeM · CPPP · eProc · IREPS · MSTC…)

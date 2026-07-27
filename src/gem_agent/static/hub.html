@@ -397,7 +397,8 @@
           </div>
           <div class="view-toolbar">
             <div class="seg" id="jobsSeg">
-              <button type="button" class="on" id="jobsPathankotBtn" onclick="setJobsFilter('pathankot')">Pathankot</button>
+              <button type="button" class="on" id="jobsAdhocBtn" onclick="setJobsFilter('adhoc')">Ad-hoc / side money</button>
+              <button type="button" id="jobsPathankotBtn" onclick="setJobsFilter('pathankot')">Pathankot</button>
               <button type="button" id="jobsLocalBtn" onclick="setJobsFilter('local')">Local factories</button>
               <button type="button" id="jobsUsableBtn" onclick="setJobsFilter('usable')">Usable for me</button>
               <button type="button" id="jobsAllBtn" onclick="setJobsFilter('all')">All active</button>
@@ -456,10 +457,11 @@
         <h3>Private job focus</h3>
         <div class="prefs">
           AI training partner / integration<br/>
-          Area manager · IT support<br/>
-          Software / computer contractor<br/>
-          Near: Pathankot · Kathua · Jammu · Punjab<br/>
-          Alerts: Telegram + email on usable matches
+          Ad-hoc specialist · freelance · visiting faculty<br/>
+          Brand store openings (IT setup / POS / training)<br/>
+          Area manager · IT support · computer contractor<br/>
+          Near: Pathankot first · Kathua · Jammu · Punjab<br/>
+          Alerts: email on usable / ad-hoc matches
         </div>
       </div>
     </aside>
@@ -476,7 +478,7 @@
     let activeKw = "all";
     let scraping = false;
     let pollTimer = null;
-    let jobsFilter = "pathankot";
+    let jobsFilter = "adhoc";
     let activeTab = "for-you";
 
     const TAB_META = {
@@ -486,7 +488,7 @@
       },
       jobs: {
         title: "Private jobs",
-        lede: "Pathankot-first · currently active openings only (last 45 days). Varun/Pepsi, Pioneer, Kandhari/Coca-Cola Kathua, Apna Pathankot.",
+        lede: "Ad-hoc specialist & brand store openings in Pathankot — stack side income (IT setup, training, freelance) while GeM tenders run.",
       },
       tenders: {
         title: "Active tenders",
@@ -577,6 +579,7 @@
 
     function setJobsFilter(mode) {
       jobsFilter = mode;
+      document.getElementById("jobsAdhocBtn").classList.toggle("on", mode === "adhoc");
       document.getElementById("jobsPathankotBtn").classList.toggle("on", mode === "pathankot");
       document.getElementById("jobsLocalBtn").classList.toggle("on", mode === "local");
       document.getElementById("jobsUsableBtn").classList.toggle("on", mode === "usable");
@@ -589,35 +592,38 @@
       const all = pj.all || (hub.by_portal || {}).private_jobs || [];
       const usable = pj.usable || [];
       const local = pj.local_factory || [];
-      const pathankot = pj.pathankot || all.filter(j =>
-        (j.meta || {}).pathankot ||
-        (j.tags || []).includes("pathankot") ||
-        /pathankot|sujanpur|145023/i.test(`${j.title} ${j.summary} ${j.location}`)
+      const pathankot = pj.pathankot || [];
+      const adhoc = pj.adhoc || all.filter(j =>
+        (j.meta || {}).adhoc || (j.meta || {}).store_open ||
+        (j.tags || []).includes("adhoc") || (j.tags || []).includes("store_open") ||
+        /adhoc|freelance|consultant|specialist|store opening|franchise|showroom|pos |cctv/i.test(`${j.title} ${j.summary}`)
       );
-      const rows = jobsFilter === "pathankot" ? pathankot
+      const rows = jobsFilter === "adhoc" ? adhoc
+        : jobsFilter === "pathankot" ? pathankot
         : jobsFilter === "local" ? local
         : jobsFilter === "usable" ? usable
         : all;
       document.getElementById("jobsMeta").textContent =
-        `${pathankot.length} Pathankot · ${local.length} factories · ${usable.length} usable · active ≤45 days`;
+        `${adhoc.length} ad-hoc/stores · ${pathankot.length} Pathankot · ${local.length} factories · active ≤45 days`;
       if (!rows.length) {
         document.getElementById("jobsList").innerHTML =
-          `<div class="empty">No <b>active Pathankot</b> jobs right now. Click <b>Refresh jobs</b> — we only keep openings from the last 45 days.</div>`;
+          `<div class="empty">No <b>ad-hoc / store-opening</b> leads yet. Click <b>Refresh jobs</b> — we hunt specialist & brand launch work near Pathankot.</div>`;
         return;
       }
       document.getElementById("jobsList").innerHTML = rows.slice(0, 40).map((j, i) => {
         const meta = j.meta || {};
         const score = meta.fit_score ?? "—";
+        const isAdhoc = meta.adhoc || (j.tags || []).includes("adhoc");
+        const isStore = meta.store_open || (j.tags || []).includes("store_open");
         const isPk = meta.pathankot || (j.tags || []).includes("pathankot");
-        const isLocal = meta.local_factory || (j.tags || []).includes("local_factory");
         const usableTag = meta.usable || (j.tags || []).includes("usable");
         const posted = meta.posted_at ? new Date(meta.posted_at).toLocaleDateString("en-IN") : "live";
-        const badge = isPk ? "PATHANKOT" : (isLocal ? "LOCAL" : (usableTag ? "USABLE" : "JOB"));
+        const badge = isAdhoc ? "AD-HOC" : (isStore ? "STORE OPEN" : (isPk ? "PATHANKOT" : (usableTag ? "USABLE" : "JOB")));
         const why = [...(meta.role_hits || []), ...(meta.near_hits || [])].slice(0, 6);
         const emp = meta.employer || j.buyer || meta.source || "";
         return `
         <article class="rec-card" style="animation-delay:${i * 0.03}s">
-          <div class="badge ${isPk || usableTag ? 'apply' : 'watch'}">${esc(badge)} · ${esc(score)}</div>
+          <div class="badge ${isAdhoc || isStore || usableTag ? 'apply' : 'watch'}">${esc(badge)} · ${esc(score)}</div>
           <div>
             <h3>${esc(j.title)}</h3>
             <div class="meta-line">${esc([emp, j.location, "posted " + posted].filter(Boolean).join(" · "))}</div>

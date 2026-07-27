@@ -92,6 +92,9 @@ Product surface: **Private jobs** tab in Pathankot Pulse (`/` UI).
 **Target roles (usable for JR Consulting):**
 
 - **Local factories/brands:** Kandhari/Coca-Cola (Kathua), Varun/Pepsi (Pathankot), Pioneer Industries, PDIL
+- **Ad-hoc / side money:** specialist, freelance consultant, visiting faculty, contract/part-time IT,
+  POS/CCTV/store IT setup for brands opening outlets in Pathankot
+- **Retail store launches:** Reliance Smart, Vishal, Croma, Domino’s, etc. — pitch as IT/training partner
 - AI training partner / integration / edtech trainer
 - Digital literacy / computer instructor / skill development
 - Area manager (IT) · IT support / technician · technical support

@@ -68,6 +68,98 @@ FIT_TOKENS = [
     "support engineer",
     "helpdesk",
     "network",
+    "adhoc",
+    "ad-hoc",
+    "ad hoc",
+    "specialist",
+    "part time",
+    "part-time",
+    "visiting",
+    "contract basis",
+    "on call",
+    "on-call",
+    "gig",
+    "retainership",
+]
+
+ADHOC_TOKENS = [
+    "adhoc",
+    "ad-hoc",
+    "ad hoc",
+    "specialist",
+    "freelance",
+    "freelancer",
+    "consultant",
+    "contract basis",
+    "contractual",
+    "part time",
+    "part-time",
+    "visiting faculty",
+    "visiting",
+    "guest faculty",
+    "retainership",
+    "on call",
+    "on-call",
+    "hourly",
+    "project basis",
+    "temporary",
+    "temp ",
+    "weekend",
+    "side",
+    "empanel",
+    "empanelment",
+    "vendor",
+    "outsource",
+    "outsourcing",
+    "agency",
+    "partner",
+]
+
+STORE_OPEN_TOKENS = [
+    "store opening",
+    "new store",
+    "showroom",
+    "outlet opening",
+    "franchise",
+    "retail store",
+    "store manager",
+    "store launch",
+    "coming soon",
+    "inauguration",
+    "mall",
+    "pos ",
+    "billing",
+    "cashier",
+    "floor manager",
+    "visual merchandis",
+    "brand activation",
+    "fit-out",
+    "fit out",
+    "store it",
+    "cctv",
+    "inventory",
+]
+
+DEFAULT_RETAIL_BRANDS = [
+    "reliance smart",
+    "vishal mega mart",
+    "more retail",
+    "trends",
+    "croma",
+    "vijay sales",
+    "decathlon",
+    "pantaloons",
+    "domino",
+    "mcdonald",
+    "burger king",
+    "cafe coffee day",
+    "starbucks",
+    "max fashion",
+    "bata",
+    "lenskart",
+    "jockey",
+    "lifestyle",
+    "westside",
 ]
 
 NEAR_TOKENS = [
@@ -305,6 +397,11 @@ def location_rank(blob: str) -> int:
     return 4
 
 
+def _retail_brands() -> list[str]:
+    raw = _cfg_jobs().get("retail_brands") or DEFAULT_RETAIL_BRANDS
+    return [str(x).lower() for x in raw]
+
+
 def score_job(
     title: str,
     summary: str = "",
@@ -318,11 +415,23 @@ def score_job(
     role_hits = [t for t in FIT_TOKENS if t in blob]
     near_hits = [t for t in NEAR_TOKENS if t in blob]
     factory_hits = [t for t in FACTORY_ROLE_TOKENS if t in blob]
+    adhoc_hits = [t for t in ADHOC_TOKENS if t in blob]
+    store_hits = [t for t in STORE_OPEN_TOKENS if t in blob]
+    brand_hits = [b for b in _retail_brands() if b in blob]
     employer_hit = any(h in blob for h in LOCAL_EMPLOYER_HINTS)
     loc_rank = location_rank(blob)
     pathankot = loc_rank == 0
+    adhoc = bool(adhoc_hits) or source == "adhoc" or "adhoc" in blob
+    store_open = bool(store_hits) or bool(brand_hits) or source == "retail"
 
-    score = min(100, 12 * len(set(role_hits)) + 8 * len(set(factory_hits)))
+    score = min(
+        100,
+        12 * len(set(role_hits))
+        + 8 * len(set(factory_hits))
+        + 14 * len(set(adhoc_hits))
+        + 12 * len(set(store_hits))
+        + 10 * len(set(brand_hits)),
+    )
     if pathankot:
         score = min(100, score + 35)
         near_hits = list(dict.fromkeys(["pathankot", *near_hits]))
@@ -330,6 +439,11 @@ def score_job(
         score = min(100, score + 20)
     elif loc_rank == 2:
         score = min(100, score + 8)
+
+    if adhoc and pathankot:
+        score = min(100, score + 18)
+    if store_open and loc_rank <= 1:
+        score = min(100, score + 16)
 
     remoteish = any(t in blob for t in ("remote", "wfh", "work from home", "worldwide", "anywhere"))
     is_near = loc_rank <= 2
@@ -339,17 +453,26 @@ def score_job(
     if posted_at and not active:
         score = max(0, score - 40)
 
-    if source in ("local_factory", "apna", "foodtech") or employer_hit:
-        score = max(score, 70 if pathankot else (55 if employer_hit else 42))
+    why = list(dict.fromkeys(role_hits + factory_hits + adhoc_hits + store_hits + brand_hits))[:8]
+
+    if source in ("local_factory", "apna", "foodtech", "adhoc", "retail") or employer_hit or store_open:
+        score = max(score, 70 if pathankot else (55 if employer_hit or store_open else 42))
         usable = is_near and active and (
-            employer_hit or bool(factory_hits) or bool(role_hits) or pathankot
+            employer_hit
+            or bool(factory_hits)
+            or bool(role_hits)
+            or adhoc
+            or store_open
+            or pathankot
         )
         return {
             "score": score,
             "usable": usable,
-            "role_hits": (role_hits + factory_hits)[:6],
+            "role_hits": why,
             "near_hits": near_hits[:4],
-            "local_factory": True,
+            "local_factory": source in ("local_factory", "apna", "foodtech") or employer_hit,
+            "adhoc": adhoc,
+            "store_open": store_open,
             "pathankot": pathankot,
             "location_rank": loc_rank,
             "active": active,
@@ -358,7 +481,7 @@ def score_job(
     usable = (
         active
         and score >= 24
-        and bool(role_hits)
+        and (bool(role_hits) or adhoc or store_open)
         and (pathankot or (is_near and not remoteish) or ("india" in blob and bool(role_hits)))
     )
     if remoteish and "india" not in blob and not pathankot:
@@ -368,9 +491,11 @@ def score_job(
     return {
         "score": score,
         "usable": usable,
-        "role_hits": role_hits[:6],
+        "role_hits": why,
         "near_hits": near_hits[:4],
         "local_factory": False,
+        "adhoc": adhoc,
+        "store_open": store_open,
         "pathankot": pathankot,
         "location_rank": loc_rank,
         "active": active,
@@ -408,6 +533,10 @@ def _lead(
         tags.append("local_factory")
     if fit.get("pathankot"):
         tags.append("pathankot")
+    if fit.get("adhoc"):
+        tags.append("adhoc")
+    if fit.get("store_open"):
+        tags.append("store_open")
     if fit.get("active"):
         tags.append("active")
     if fit["usable"]:
@@ -420,6 +549,8 @@ def _lead(
         "fit_score": fit["score"],
         "usable": fit["usable"],
         "local_factory": fit.get("local_factory", False),
+        "adhoc": fit.get("adhoc", False),
+        "store_open": fit.get("store_open", False),
         "pathankot": fit.get("pathankot", False),
         "location_rank": fit.get("location_rank", 9),
         "active": fit.get("active", True),
@@ -748,16 +879,78 @@ def _dedupe(leads: list[Lead]) -> list[Lead]:
     return out
 
 
+def _scrape_retail_adhoc(client: httpx.Client) -> list[Lead]:
+    """Ad-hoc specialist + brands opening stores in Pathankot / nearby."""
+    leads: list[Lead] = []
+    brand_qs = [
+        f"{b} Pathankot hiring" for b in _retail_brands()[:10]
+    ] + [
+        "new store opening Pathankot jobs",
+        "showroom opening Pathankot",
+        "franchise Pathankot hiring",
+        "store manager Pathankot",
+        "adhoc specialist Pathankot IT",
+        "freelance IT consultant Pathankot",
+        "visiting faculty computer Pathankot",
+        "POS training Pathankot store",
+        "CCTV installation Pathankot contract",
+        "part time computer trainer Pathankot",
+    ]
+    for q in brand_qs[:18]:
+        url = f"https://html.duckduckgo.com/html/?q={quote_plus(q + ' 2026')}"
+        try:
+            r = client.get(url)
+            if r.status_code >= 400:
+                continue
+            soup = BeautifulSoup(r.text, "html.parser")
+            for a in soup.select("a.result__a")[:8]:
+                title = a.get_text(" ", strip=True)
+                href = _unwrap_ddg(a.get("href") or "")
+                if not href.startswith("http"):
+                    continue
+                snippet_el = a.find_parent("div", class_="result") or a.parent
+                snippet = ""
+                if snippet_el:
+                    sn = snippet_el.select_one(".result__snippet")
+                    snippet = sn.get_text(" ", strip=True) if sn else ""
+                blob = f"{title} {snippet} {q}".lower()
+                is_adhoc = any(t in blob for t in ADHOC_TOKENS)
+                is_store = any(t in blob for t in STORE_OPEN_TOKENS) or any(
+                    b in blob for b in _retail_brands()
+                )
+                if not (is_adhoc or is_store or "pathankot" in blob):
+                    continue
+                src = "adhoc" if is_adhoc and not is_store else ("retail" if is_store else "web")
+                brand = next((b.title() for b in _retail_brands() if b in blob), "")
+                lead = _lead(
+                    title=title,
+                    url=href,
+                    location="Pathankot, Punjab",
+                    summary=snippet or f"Side hustle · {q}",
+                    source=src,
+                    query=q,
+                    employer=brand,
+                    posted_at=None,
+                    require_active=False,
+                )
+                if lead:
+                    leads.append(lead)
+        except httpx.HTTPError:
+            continue
+    return leads
+
+
 def scrape_private_jobs() -> list[Lead]:
-    """Pathankot-first active jobs, then nearby factories, then India remote."""
+    """Pathankot-first active jobs + ad-hoc / store-opening side income."""
     leads: list[Lead] = []
     with _client() as client:
         leads.extend(_scrape_apna_local(client))
+        leads.extend(_scrape_retail_adhoc(client))
         leads.extend(_scrape_foodtechnetwork(client))
         leads.extend(_scrape_jobsfood_local(client))
         leads.extend(_scrape_duckduckgo(client))
         leads.extend(_scrape_remotive(client))
-    return _dedupe(leads)[:200]
+    return _dedupe(leads)[:220]
 
 
 def local_factory_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
@@ -817,6 +1010,44 @@ def usable_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> list[
     out.sort(
         key=lambda x: (
             int((x.get("meta") or {}).get("location_rank", 9)),
+            -int((x.get("meta") or {}).get("fit_score") or 0),
+        )
+    )
+    return out
+
+
+def adhoc_jobs(leads: list[Lead] | list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """Ad-hoc / specialist / store-opening / freelance side-income leads near Pathankot."""
+    if leads is None:
+        from .store import load_leads
+
+        leads = (load_leads().get("by_portal") or {}).get("private_jobs") or []
+    out: list[dict[str, Any]] = []
+    for row in leads:
+        d = row.to_dict() if isinstance(row, Lead) else dict(row)
+        meta = d.get("meta") or {}
+        posted = parse_posted_date(meta.get("posted_at"))
+        if posted and not is_active(posted):
+            continue
+        tags = d.get("tags") or []
+        blob = f"{d.get('title')} {d.get('summary')} {d.get('location')} {d.get('buyer')}".lower()
+        if (
+            meta.get("adhoc")
+            or meta.get("store_open")
+            or "adhoc" in tags
+            or "store_open" in tags
+            or any(t in blob for t in ADHOC_TOKENS)
+            or any(t in blob for t in STORE_OPEN_TOKENS)
+            or any(b in blob for b in _retail_brands())
+        ):
+            # Prefer near Pathankot belt
+            if location_rank(blob) > 2:
+                continue
+            out.append(d)
+    out.sort(
+        key=lambda x: (
+            int((x.get("meta") or {}).get("location_rank", 9)),
+            0 if (x.get("meta") or {}).get("adhoc") else 1,
             -int((x.get("meta") or {}).get("fit_score") or 0),
         )
     )
